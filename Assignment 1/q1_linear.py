@@ -91,6 +91,8 @@ def part_c(Jt=None):
         .reshape(50, 50)
     )
 
+    plt.ion()
+
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
@@ -99,17 +101,24 @@ def part_c(Jt=None):
     ax.set_ylabel(r'$\theta_1$', labelpad=10)
     ax.set_zlabel(r'$J(\theta)$', labelpad=10)
 
+    plt.show()
+
     if Jt is not None:
-        ax.plot(Jt[:, 0], Jt[:, 1], Jt[:, 2], linestyle='-',
-                color='r', marker='o', markersize=2.5)
+
+        # To draw line between points
+        # ax.plot(Jt[:, 0], Jt[:, 1], Jt[:, 2], linestyle='-',
+        #         color='r', marker='o', markersize=2.5)
+
+        for jt in Jt:
+            ax.plot([jt[0]], [jt[1]], [jt[2]], linestyle='-',
+                    color='r', marker='o', markersize=2.5)
+
+            plt.pause(0.2)
 
     save(plt, "q1_a.png")
 
-    # TODO: 0.2 second time gap?
-    plt.show()
 
-
-def part_d(Jt=None):
+def part_d(Jt=None, show=False):
     T0, T1 = np.mgrid[0:2:50j, -1:1:50j]
     mesh = np.c_[T0.flatten(), T1.flatten()]
 
@@ -118,21 +127,35 @@ def part_d(Jt=None):
         .reshape(T0.shape)
     )
 
-    # TODO: 0.2 second time gap?
-    # plt.contour(T0, T1, J_values, np.arange(0, 50, 3), colors="k")
+    plt.ion()
     plt.contour(T0, T1, J_values, 25, colors="k")
     plt.xlabel(r'$\theta_0$', labelpad=10)
     plt.ylabel(r'$\theta_1$', labelpad=10)
 
+    if show:
+        plt.show()
+
     if Jt is not None:
-        plt.plot(Jt[:, 0], Jt[:, 1], linestyle='-',
-                 color='r', marker='o', markersize=2.5)
+
+        # To draw line with points
+        # plt.plot(Jt[:, 0], Jt[:, 1], linestyle='-',
+        #          color='r', marker='o', markersize=2.5)
+
+        for jt in Jt:
+            plt.plot([jt[0]], [jt[1]], linestyle='-',
+                     color='r', marker='o', markersize=2.5)
+
+            if show:
+                plt.pause(0.02)
+
+    if show:
+        save(plt, "q1_d_0.001.png")
+        plt.close()
 
     return plt
 
 
 def part_e():
-    # for eta in [0.021, 0.025]:
     for eta in [0.001, 0.005, 0.009, 0.013, 0.017, 0.021, 0.025]:
         print("\n --- \n Eta: %.2f \n --- \n" % eta)
 
@@ -142,8 +165,8 @@ def part_e():
         plt.title(r"$Contours (\eta=$" + str(eta) + ")")
 
         save(plt, "q1_e_%.3f.png" % eta)
+        plt.show()
         plt.close()
-        # plt.show()
 
 
 if __name__ == '__main__':
@@ -153,9 +176,6 @@ if __name__ == '__main__':
     part_c()
     part_c(J_trace)
 
-    plt = part_d(J_trace)
-    save(plt, "q1_d_0.001.png")
-    plt.close()
-    plt.show()
+    part_d(J_trace, show=True)
 
     part_e()
