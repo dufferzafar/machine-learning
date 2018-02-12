@@ -1,8 +1,21 @@
+import os
 import numpy as np
+
+
+OUT = "outputs/"
+if not os.path.exists(OUT):
+    os.makedirs(OUT)
+
+
+def save(plt, name):
+    plt.savefig(os.path.join(OUT, name))
 
 
 def normalize(x):
     """Normalize a column of a numpy array."""
+
+    # TODO: Take in a matrix and normalize all its columns
+    # axis param on mean
 
     mu = np.mean(x)
     std = np.std(x)
