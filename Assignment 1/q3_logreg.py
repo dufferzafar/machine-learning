@@ -3,6 +3,8 @@
 import numpy as np
 
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+
 from common import normalize, save
 
 
@@ -98,13 +100,15 @@ def part_b(theta):
     yy = list(map(find_x2, X))
 
     plt.scatter(X[:, 1], X[:, 2], c=colors)
-    plt.plot(X[:, 1], yy, 'g')
+    line, = plt.plot(X[:, 1], yy, 'g', label="Decision Boundary")
 
-    # TODO: Add proper legend
-    # blue_patch = mpatches.Patch(color='blue', label='Data')
+    cls0 = mpatches.Patch(color='blue', label='Class 0')
+    cls1 = mpatches.Patch(color='red', label='Class 1')
 
     plt.xlabel(r'Feature 0 ($X_0)$')
     plt.ylabel(r'Feature 1 ($X_1)$')
+
+    plt.legend(handles=[cls0, cls1, line])
 
     save(plt, "q3_b.png")
 
