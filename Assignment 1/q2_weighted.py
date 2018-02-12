@@ -5,7 +5,7 @@ from numpy import linalg as LA
 
 import matplotlib.pyplot as plt
 
-from common import read_data
+from common import read_data, save
 
 
 X, y, m, n = read_data("data/weightedX.csv",
@@ -22,8 +22,18 @@ def part_a():
 
     print("Parameters:", theta)
 
-    plt.plot(X[:, 1], y, 'rx')
-    plt.plot(X[:, 1], list(map(lambda x: theta @ x, X)), 'b')
+    yy = list(map(lambda x: theta @ x, X))
+
+    data, = plt.plot(X[:, 1], y, 'rx', label="Data")
+    line, = plt.plot(X[:, 1], yy, 'b', label="Hypothesis (unweighted)")
+
+    plt.xlabel("X")
+    plt.ylabel("Y")
+
+    plt.legend(handles=[data, line])
+
+    save(plt, "q2_a.png")
+
     plt.show()
 
 
@@ -38,18 +48,28 @@ def weighted_regression(tau):
     result = []
     for x in query_points:
         W = weight_matrix(X, x, tau)
-        theta = np.linalg.pinv(X.T @ W @ X) @ X.T @ W @ y
+        theta = LA.inv(X.T @ W @ X) @ X.T @ W @ y
         result.append(theta @ np.array([1, x]))
 
     # Plot it!
-    plt.plot(X[:, 1], y, 'rx')
-    plt.plot(query_points, result, 'b')
+    data, = plt.plot(X[:, 1], y, 'rx', label="Data")
+
+    taut = r'$\tau = $' + str(tau)
+    line, = plt.plot(query_points, result, 'b', label="Hypothesis for " + taut)
+
+    plt.legend(handles=[data, line], loc=4)
+
+    plt.title(taut)
+
+    plt.xlabel("X")
+    plt.ylabel("Y")
 
     return plt
 
 
 def part_b():
     plt = weighted_regression(0.8)
+    save(plt, "q2_b_0.8.png")
     plt.show()
 
 
@@ -58,7 +78,10 @@ def part_c():
         print("Tau: ", tau)
 
         plt = weighted_regression(tau)
-        plt.show()
+        save(plt, "q2_b_%.1f.png" % tau)
+        plt.close()
+        # plt.show()
+
 
 if __name__ == '__main__':
     part_a()
