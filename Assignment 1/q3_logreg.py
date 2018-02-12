@@ -3,7 +3,7 @@
 import numpy as np
 
 import matplotlib.pyplot as plt
-from common import normalize
+from common import normalize, save
 
 
 # TODO: Use read_data once normalize is fixed
@@ -94,8 +94,20 @@ def part_b(theta):
         return (-t[0] - t[1] * x[1]) / t[2]
 
     colors = ["r" if cls else "b" for cls in y]
+
+    yy = list(map(find_x2, X))
+
     plt.scatter(X[:, 1], X[:, 2], c=colors)
-    plt.plot(X[:, 1], list(map(find_x2, X)), 'g')
+    plt.plot(X[:, 1], yy, 'g')
+
+    # TODO: Add proper legend
+    # blue_patch = mpatches.Patch(color='blue', label='Data')
+
+    plt.xlabel(r'Feature 0 ($X_0)$')
+    plt.ylabel(r'Feature 1 ($X_1)$')
+
+    save(plt, "q3_b.png")
+
     plt.show()
 
 
