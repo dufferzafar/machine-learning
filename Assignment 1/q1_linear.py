@@ -1,13 +1,12 @@
 """Q1: Linear regression."""
 
 import numpy as np
-from numpy import linalg as LA
 
 import matplotlib.pyplot as plt
 from matplotlib import cm
-from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d import Axes3D  # noqa
 
-from common import read_data
+from common import read_data, save
 
 
 X, y, m, n = read_data("data/linearX.csv",
@@ -65,8 +64,16 @@ def part_a(eta=0.001):
 
 
 def part_b(theta):
-    plt.plot(X[:, 1], y, 'rx')
-    plt.plot(X[:, 1], list(map(lambda x: theta @ x, X)), 'b')
+    data, = plt.plot(X[:, 1], y, 'rx', label="Data")
+    yy = list(map(lambda x: theta @ x, X))
+    line, = plt.plot(X[:, 1], yy, 'b', label="Hypothesis")
+
+    plt.xlabel("Acidity of wine (normalised)")
+    plt.ylabel("Density of wine")
+
+    plt.legend(handles=[data, line])
+
+    save(plt, "q1_b.png")
     plt.show()
 
 
@@ -85,9 +92,11 @@ def part_c():
     ax = fig.add_subplot(111, projection='3d')
 
     ax.plot_surface(T0, T1, J_values, cmap=cm.RdBu_r)
-    ax.set_xlabel('theta_0', labelpad=10)
-    ax.set_ylabel('theta_1', labelpad=10)
-    ax.set_zlabel('J (theta)', labelpad=10)
+    ax.set_xlabel(r'$\theta_0$', labelpad=10)
+    ax.set_ylabel(r'$\theta_1$', labelpad=10)
+    ax.set_zlabel(r'$J(\theta)$', labelpad=10)
+
+    save(plt, "q1_a.png")
 
     # TODO: 0.2 second time gap?
     plt.show()
@@ -125,11 +134,11 @@ def part_e():
 
 
 if __name__ == '__main__':
-    # theta, _ = part_a()
-    # part_b(theta)
+    theta, _ = part_a()
+    part_b(theta)
     # part_c()
 
-    plt = part_d()
-    plt.show()
+    # plt = part_d()
+    # plt.show()
 
     # part_e()
