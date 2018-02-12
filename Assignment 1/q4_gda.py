@@ -5,7 +5,11 @@ from numpy import linalg as LA
 
 import matplotlib.pyplot as plt
 
-from common import normalize
+# Used for legends
+import matplotlib.patches as mpatches
+import matplotlib.lines as mlines
+
+from common import normalize, save
 
 # TODO: Use read_data once normalize is fixed
 xf, yf = "data/q4x.dat", "data/q4y.dat"
@@ -57,8 +61,16 @@ def part_a():
 def part_b():
     """Plot data with proper colors."""
 
-    # TODO: Add legend and labels
     plt.scatter(X[:, 0], X[:, 1], c=colors)
+
+    cls0 = mpatches.Patch(color='blue', label="Alaska")
+    cls1 = mpatches.Patch(color='red', label="Canada")
+
+    plt.xlabel(r'Feature 0 ($X_0)$')
+    plt.ylabel(r'Feature 1 ($X_1)$')
+    plt.legend(handles=[cls0, cls1])
+
+    save(plt, "q4_b.png")
     plt.show()
 
 
@@ -82,7 +94,17 @@ def part_c(phi, mu, sigma):
 
     # Plot line
     X1 = (B - A[0] * X0) / (A[1])
-    plt.plot(X0, X1, "g")
+    line, = plt.plot(X0, X1, "g", label="Decision Boundary")
+
+    cls0 = mpatches.Patch(color='blue', label="Alaska")
+    cls1 = mpatches.Patch(color='red', label="Canada")
+
+    plt.xlabel(r'Feature 0 ($X_0)$')
+    plt.ylabel(r'Feature 1 ($X_1)$')
+    plt.legend(handles=[cls0, cls1, line])
+
+    save(plt, "q4_c.png")
+
     plt.show()
 
     return (X0, X1)
@@ -91,7 +113,7 @@ def part_c(phi, mu, sigma):
 
     # p, q = np.mgrid[-2.5:2.5:50j, -3:3:50j]
     # M = np.c_[p.flatten(), q.flatten()]
-    # line = (A @ M.T + B).reshape(50, 50)
+    # line = (A @ M.T + B).reshape(p.shape)
 
     # Plot data points
     # X0, X1 = X[:, 0], X[:, 1]
@@ -155,17 +177,33 @@ def part_e(phi, mu, sigma, line):
     X0, X1 = X[:, 0], X[:, 1]
     plt.scatter(X0, X1, c=colors)
 
-    plt.contour(p, q, quad, [0], colors="k")
-    # plt.contour(p, q, line, [0], colors="g")
-    plt.plot(line[0], line[1], color="g")
+    plt.contour(p, q, quad, [0], colors="y")
+    line, = plt.plot(line[0], line[1], color="g", label="Linear Decision Boundary")
 
+    # If line were calculated via vectorized method!
+    # plt.contour(p, q, line, [0], colors="g")
+
+    cls0 = mpatches.Patch(color='blue', label="Alaska")
+    cls1 = mpatches.Patch(color='red', label="Canada")
+    qdb = mlines.Line2D(color='yellow', label="Quadratic Decision Boundary",
+                        xdata=[], ydata=[])
+
+    plt.xlabel(r'Feature 0 ($X_0)$')
+    plt.ylabel(r'Feature 1 ($X_1)$')
+
+    plt.legend(handles=[cls0, cls1, qdb, line])
+
+    save(plt, "q4_d.png")
     plt.show()
 
 
 if __name__ == '__main__':
     phi, mu, sigma = part_a()
+
     part_b()
+
     line = part_c(phi, mu, sigma)
 
     phi, mu, sigma = part_d()
+
     part_e(phi, mu, sigma, line)
