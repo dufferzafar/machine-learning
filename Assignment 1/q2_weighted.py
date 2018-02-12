@@ -80,12 +80,10 @@ def part_c():
         plt = weighted_regression(tau)
         save(plt, "q2_b_%.1f.png" % tau)
         plt.close()
-        # plt.show()
+        plt.show()
 
 
 if __name__ == '__main__':
     part_a()
     part_b()
-
-    # TODO: Update already existing plots?
     part_c()
