@@ -91,12 +91,12 @@ def train():
     # Prior probabilites of the data
     priors = calc_priors(list(train_y))
 
-    # Store counts of words in documents of each class
+    # Store counts of each word in documents of each class
     wrd_cnt = defaultdict(Counter)
+    for r, c in zip(train_x, train_y):
+        wrd_cnt[c].update(r.split())
 
-    for review, rating in zip(train_x, train_y):
-        wrd_cnt[rating].update(review.split())
-
+    # Total words in documents of a class
     wrd_cnt_tot = {cls: sum(ctr.values()) for cls, ctr in wrd_cnt.items()}
 
     # Build a vocabulary of all words in the dataset
@@ -104,12 +104,7 @@ def train():
     for ctr in wrd_cnt.values():
         vocab |= set(ctr.keys())
 
-    len_vocab = len(vocab)
-
-    # Why keep a huge list in memory
-    del vocab
-
-    return train_x, train_y, (priors, wrd_cnt, wrd_cnt_tot, len_vocab)
+    return train_x, train_y, (priors, wrd_cnt, wrd_cnt_tot, len(vocab))
 
 
 if __name__ == '__main__':
