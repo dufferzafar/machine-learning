@@ -110,7 +110,11 @@ def train():
 if __name__ == '__main__':
 
     train_x, train_y, args = train()
-
     acc = accuracy(train_x, train_y, *args)
 
-    print("Accuracy: %f" % acc)
+    print("Training Accuracy: %f" % acc)
+
+    test_x, test_y = read_data("test")
+    acc = accuracy(test_x, test_y, *args)
+
+    print("Testing Accuracy: %f" % acc)
