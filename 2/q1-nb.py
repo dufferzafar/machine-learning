@@ -14,8 +14,9 @@ DATA = "data/imdb/"
 
 
 def clean_line(l):
-    l = l.strip().lower().replace("<br />", "")
-    return re.sub(alnum, ' ', l).strip()
+    # l = l.strip().lower().replace("<br />", "")
+    # return re.sub(alnum, ' ', l).strip()
+    return l.strip().lower()
 
 
 def read_file(fn, clean=lambda l: l.strip()):
@@ -28,14 +29,6 @@ def read_data(typ):
     train_x = read_file("imdb_%s_text.txt" % typ, clean_line)
     train_y = read_file("imdb_%s_labels.txt" % typ)
     return train_x, train_y
-
-
-def calc_priors(labels):
-    """Calculate the prior probabilities from a list of labels."""
-
-    cnts = Counter(labels)
-    total = sum(cnts.values())
-    return {cls: cnt / total for cls, cnt in cnts.items()}
 
 
 def classify(review, priors, wrd_cnt, wrd_cnt_tot, len_vocab):
@@ -71,6 +64,10 @@ def accuracy(reviews, labels, *args):
 
     # TODO: Build a confusion matrix
 
+    # TODO: Convert the confusion matrix into a plot
+    # https://stackoverflow.com/questions/2148543
+    # http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
+
     right, wrong = 0, 0
 
     for r, c in zip(reviews, labels):
@@ -89,7 +86,9 @@ def train():
     train_x, train_y = read_data("train")
 
     # Prior probabilites of the data
-    priors = calc_priors(list(train_y))
+    cnts = Counter(train_y)
+    total = sum(cnts.values())
+    priors = {cls: cnt / total for cls, cnt in cnts.items()}
 
     # Store counts of each word in documents of each class
     wrd_cnt = defaultdict(Counter)
@@ -118,3 +117,5 @@ if __name__ == '__main__':
     acc = accuracy(test_x, test_y, *args)
 
     print("Testing Accuracy: %f" % acc)
+
+    # TODO: Print random & majority accuracy?
