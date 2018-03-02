@@ -6,13 +6,6 @@ from svmutil import *  # noqa
 DATA = "data/mnist/"
 
 
-# TODO: Don't use numpy?
-# def read_data(fn):
-#     x = np.loadtxt(DATA + fn + ".csv", usecols=list(range(784)), delimiter=",")
-#     y = np.loadtxt(DATA + fn + ".csv", usecols=[784], delimiter=",")
-#     return x, y
-
-
 def read_data(fn):
     y, x = [], []
     with open(DATA + fn + ".csv") as f:
@@ -24,12 +17,16 @@ def read_data(fn):
 
 def normalize(data):
     """Scale down features to range 0-1, for faster convergence."""
-    data = np.asarray(data)
-    for col in data.T:
-        min_ = np.min(col)
-        max_ = np.max(col)
-        col = (col - min_) / (max_ - min_)
-    return data.tolist()
+    X = np.asarray(data)
+
+    mn = np.min(X, axis=0)
+    mx = np.max(X, axis=0)
+
+    with np.errstate(divide='ignore', invalid='ignore'):
+        X = (X - mn) / (mx - mn)
+        X = np.nan_to_num(X, copy=False)
+
+    return X.tolist()
 
 
 def part_c():
