@@ -30,28 +30,28 @@ def normalize(data):
 
 
 def part_c():
-    print("--- Part C ---")
+    print("\n--- Part C ---\n")
 
     print("Reading Data")
     train_y, train_x = read_data("train")
     test_y, test_x = read_data("test")
 
-    # TODO: Scale data to 0-1 range
+    print("Normalizing")
     train_x = normalize(train_x)
     test_x = normalize(test_x)
 
     problem = svm_problem(train_y, train_x)
 
-    # Takes around ~2 minutes with raw features
+    # TODO: Timing calculations
     print("Training SVM (linear kernel)")
     model = svm_train(problem, "-q -s 0 -t 0")
     _, p_acc, _ = svm_predict(test_y, test_x, model)
     print("Accuracy: ", p_acc)
 
-    # print("Training SVM (gaussian kernel)")
-    # model = svm_train(problem, "-q -s 0 -t 2 -c 1 -g 0.05")
-    # _, p_acc, _ = svm_predict(*test, model)
-    # print("Accuracy: ", p_acc)
+    print("Training SVM (gaussian kernel)")
+    model = svm_train(problem, "-q -s 0 -t 2 -c 1 -g 0.05")
+    _, p_acc, _ = svm_predict(test_y, test_x, model)
+    print("Accuracy: ", p_acc)
 
 
 if __name__ == '__main__':
