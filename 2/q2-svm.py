@@ -51,15 +51,20 @@ def part_c():
     test_x = normalize(test_x)
 
     problem = svm_problem(train_y, train_x)
+    params = svm_parameter("-q -s 0 -c 1")
 
     # TODO: Timing calculations
     print("Training SVM (linear kernel)")
-    model = svm_train(problem, "-q -s 0 -t 0")
+    params.parse_options("-t 0")
+    model = svm_train(problem, params)
+
     _, p_acc, _ = svm_predict(test_y, test_x, model)
     print("Accuracy: ", p_acc)
 
     print("Training SVM (gaussian kernel)")
-    model = svm_train(problem, "-q -s 0 -t 2 -c 1 -g 0.05")
+    params.parse_options("-t 2 -g 0.05")
+    model = svm_train(problem, params)
+
     _, p_acc, _ = svm_predict(test_y, test_x, model)
     print("Accuracy: ", p_acc)
 
