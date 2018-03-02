@@ -1,9 +1,19 @@
 import csv
-import numpy as np
 
-from svmutil import *  # noqa
+import numpy as np
+from matplotlib import pyplot as plt
+
+from svmutil import *
 
 DATA = "data/mnist/"
+
+
+def show_img(arr):
+    """Display image from array of values."""
+    plt.imshow(arr.reshape((28, 28)))
+    plt.axis('off')
+    # TODO: Save image to file rather than showing
+    plt.show()
 
 
 def read_data(fn):
