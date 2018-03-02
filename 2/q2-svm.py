@@ -69,6 +69,36 @@ def part_c():
     print("Accuracy: ", p_acc)
 
 
+def part_d():
+    print("\n--- Part D ---\n")
+
+    print("Reading Data")
+    train_y, train_x = read_data("train")
+    test_y, test_x = read_data("test")
+
+    print("Normalizing")
+    train_x = normalize(train_x)
+    test_x = normalize(test_x)
+
+    problem = svm_problem(train_y, train_x)
+    params = "-q -s 0 -t 2 -g 0.05"
+
+    results = []
+    for c in [10 ** -5, 10 ** -3, 1, 5, 10]:
+
+        c = " -c %f " % c
+        print("10-fold CV using" + c)
+        cv_acc = svm_train(problem, params + c + "-v 10")
+
+        print("On test data using" + c)
+        model = svm_train(problem, params + c)
+        _, test_acc, _ = svm_predict(c_test, d_test, model)
+        print("C, Accuracy: ", c, cv_acc, test_acc)
+
+        results.append((c, cv_acc, test_acc[0]))
+
+
 if __name__ == '__main__':
 
-    part_c()
+    # part_c()
+    part_d()
