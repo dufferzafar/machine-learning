@@ -4,6 +4,8 @@
 import math
 import re
 
+from contexttimer import Timer as TimeIt
+
 from collections import Counter, defaultdict
 
 alnum = re.compile(r'[^A-Za-z]+')
@@ -108,14 +110,20 @@ def train():
 
 if __name__ == '__main__':
 
-    train_x, train_y, args = train()
-    acc = accuracy(train_x, train_y, *args)
+    with TimeIt(prefix="Training Naive Bayes"):
+        train_x, train_y, args = train()
 
-    print("Training Accuracy: %f" % acc)
+    print("")
 
-    test_x, test_y = read_data("test")
-    acc = accuracy(test_x, test_y, *args)
+    with TimeIt(prefix="Finding Training Accuracy"):
+        acc = accuracy(train_x, train_y, *args)
 
-    print("Testing Accuracy: %f" % acc)
+    print("\nTraining Accuracy: %.3f\n" % (acc * 100))
+
+    with TimeIt(prefix="Finding Testing Accuracy"):
+        test_x, test_y = read_data("test")
+        acc = accuracy(test_x, test_y, *args)
+
+    print("\nTesting Accuracy: %.3f\n" % (acc * 100))
 
     # TODO: Print random & majority accuracy?
