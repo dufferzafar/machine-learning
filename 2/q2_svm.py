@@ -1,16 +1,16 @@
 import csv
 
-import numpy as np
-from matplotlib import pyplot as plt
+from itertools import combinations
 
+import numpy as np
+
+from matplotlib import pyplot as plt
 from svmutil import (
     svm_parameter,
+    svm_predict,
     svm_problem,
     svm_train,
-    svm_predict
 )
-
-from itertools import combinations
 
 DATA = "data/mnist/"
 
