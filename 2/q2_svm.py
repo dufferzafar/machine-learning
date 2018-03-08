@@ -133,6 +133,25 @@ def part_b():
         # Fit a classifier and store the parameters
         classifiers[classes] = pegasos(X, y, C=0.5)
 
+    # Iterate over training set
+    for x in test_x:
+
+        p = []
+
+        # Pass each example to all classifiers
+        for classes, params in classifiers.items():
+            pos, neg = classes
+            W, B = params
+
+            if svm_classify(x, W, B) > 0:
+                p.append(pos)
+            else:
+                p.append(neg)
+
+        # Find the class with the most count
+        predicted_labels.append(max(p, p.count))
+
+    # Now accuracy can be computed using actual labels and predicted ones
 
 def part_c():
     print("\n--- Part C ---\n")
