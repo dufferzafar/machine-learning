@@ -44,6 +44,56 @@ def normalize(data):
     return X
 
 
+# This is the part a of the assignment
+def pegasos(X, y, C, lmbd=1):
+    """
+    Pegasos: Primal Estimated sub-GrAdient SOlver for SVM.
+
+    A batch SGD algorithm to find parameters w, b in SVM.
+
+    X: Design matrix (training data's features)
+    y: Labels (should be +1 / -1)
+
+    Differences from the Pegasos paper:
+
+    lambda is fixed to 1
+    k is 1/C
+    """
+
+    m, n = X.shape
+
+    # Batch size
+    r = 100
+
+    # Initial guess of W
+    # TODO: What if this gets changed?
+    W = np.zeros(n + 1)
+
+    # TODO: Add convergence criteria
+    # while not converged:
+    for it in range(500):
+
+        # Because this is stochastic descent
+        # we decrease eta as we go ahead
+        eta = 1 / it
+
+        # Do updates in batches
+        for b in range(m / r):
+
+            # Data in this batch:
+            Xb = X[b:b + r]
+            yb = y[b:b + r]
+
+            # Find samples in this batch for which T < 1
+            T = yb @ ((W.T @ Xb) + b)
+            l1 = np.where(T < 1)
+
+            W = (1 - eta) * W + C * np.sum(Xb[l1] * yb[l1])
+
+            # TODO: Convergence could be change in w < thresh.
+            # abs(W - W_old) < 10 ** - 3
+
+
 def part_c():
     print("\n--- Part C ---\n")
 
