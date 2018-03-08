@@ -36,7 +36,7 @@ def normalize(data):
         X = (X - mn) / (mx - mn)
         X = np.nan_to_num(X, copy=False)
 
-    return X.tolist()
+    return X
 
 
 def part_c():
@@ -47,8 +47,8 @@ def part_c():
     test_y, test_x = read_data("test")
 
     print("Normalizing")
-    train_x = normalize(train_x)
-    test_x = normalize(test_x)
+    train_x = normalize(train_x).tolist()
+    test_x = normalize(test_x).tolist()
 
     problem = svm_problem(train_y, train_x)
     params = svm_parameter("-q -s 0 -c 1")
