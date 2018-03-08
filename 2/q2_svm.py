@@ -10,6 +10,8 @@ from svmutil import (
     svm_predict
 )
 
+from itertools import combinations
+
 DATA = "data/mnist/"
 
 
@@ -96,6 +98,40 @@ def pegasos(X, y, C, lmbd=1):
             # abs(W - W_old) < 10 ** - 3
 
     return W, B
+
+
+def part_b():
+    print("\n--- Part A ---\n")
+
+    print("Reading Data")
+    train_y, train_x = read_data("train")
+    test_y, test_x = read_data("test")
+
+    print("Normalizing")
+    train_x = normalize(train_x)
+    test_x = normalize(test_x)
+    train_y = np.asarray(train_y)
+    test_y = np.asarray(test_y)
+
+    # Build 10_C_2 1vs1 SVM classifiers
+    classifiers = {}
+    for classes in combinations(set(train_y), 2):
+
+        # Let's call the first class positive
+        # and the other negative
+        pos, neg = classes
+
+        # Find examples of these classes
+        Xpos = train_x[np.where(train_y == pos)]
+        Xneg = train_x[np.where(train_y == neg)]
+        X = np.concatenate((Xpos, Xneg))
+
+        # The data contains classes from 1 - 10
+        # but SVMs deal with +1 / -1
+        y = np.array([1] * len(Xpos) + [-1] * len(Xneg))
+
+        # Fit a classifier and store the parameters
+        classifiers[classes] = pegasos(X, y, C=0.5)
 
 
 def part_c():
