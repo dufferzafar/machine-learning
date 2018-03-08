@@ -108,22 +108,28 @@ def train():
     return train_x, train_y, (priors, wrd_cnt, wrd_cnt_tot, len(vocab))
 
 
-if __name__ == '__main__':
+def part_a():
 
     with TimeIt(prefix="Training Naive Bayes"):
-        train_x, train_y, args = train()
+        train_x, train_y, model = train()
 
     print("")
 
     with TimeIt(prefix="Finding Training Accuracy"):
-        acc = accuracy(train_x, train_y, *args)
+        train_acc = accuracy(train_x, train_y, *model)
 
-    print("\nTraining Accuracy: %.3f\n" % (acc * 100))
+    print("\nTraining Accuracy: %.3f\n" % (train_acc * 100))
+
+    test_x, test_y = read_data("test")
 
     with TimeIt(prefix="Finding Testing Accuracy"):
-        test_x, test_y = read_data("test")
-        acc = accuracy(test_x, test_y, *args)
+        test_acc = accuracy(test_x, test_y, *model)
 
-    print("\nTesting Accuracy: %.3f\n" % (acc * 100))
+    print("\nTesting Accuracy: %.3f\n" % (test_acc * 100))
+
+
+if __name__ == '__main__':
+
+    part_a()
 
     # TODO: Print random & majority accuracy?
