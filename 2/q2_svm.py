@@ -68,6 +68,7 @@ def pegasos(X, y, C, lmbd=1):
     # Initial guess of W
     # TODO: What if this gets changed?
     W = np.zeros(n + 1)
+    B = np.zeros(n + 1)
 
     # TODO: Add convergence criteria
     # while not converged:
@@ -78,20 +79,23 @@ def pegasos(X, y, C, lmbd=1):
         eta = 1 / it
 
         # Do updates in batches
-        for b in range(m / r):
+        for batch in range(m / r):
 
             # Data in this batch:
-            Xb = X[b:b + r]
-            yb = y[b:b + r]
+            Xb = X[batch:batch + r]
+            yb = y[batch:batch + r]
 
-            # Find samples in this batch for which T < 1
-            T = yb @ ((W.T @ Xb) + b)
-            l1 = np.where(T < 1)
+            # Find examples in this batch for which T < 1
+            # TODO: Are these points the "support vectors" ?
+            T = yb @ ((W.T @ Xb) + B)
+            Tl1 = np.where(T < 1)
 
-            W = (1 - eta) * W + C * np.sum(Xb[l1] * yb[l1])
+            W = (1 - eta) * W + C * np.sum(Xb[Tl1] * yb[Tl1])
 
             # TODO: Convergence could be change in w < thresh.
             # abs(W - W_old) < 10 ** - 3
+
+    return W, B
 
 
 def part_c():
