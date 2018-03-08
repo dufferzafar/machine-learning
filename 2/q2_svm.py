@@ -3,7 +3,12 @@ import csv
 import numpy as np
 from matplotlib import pyplot as plt
 
-from svmutil import *
+from svmutil import (
+    svm_parameter,
+    svm_problem,
+    svm_train,
+    svm_predict
+)
 
 DATA = "data/mnist/"
 
@@ -92,7 +97,7 @@ def part_d():
 
         print("On test data using" + c)
         model = svm_train(problem, params + c)
-        _, test_acc, _ = svm_predict(c_test, d_test, model)
+        _, test_acc, _ = svm_predict(test_y, test_x, model)
         print("C, Accuracy: ", c, cv_acc, test_acc)
 
         results.append((c, cv_acc, test_acc[0]))
