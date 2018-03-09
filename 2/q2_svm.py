@@ -32,6 +32,18 @@ def read_data(fn):
     return y, x
 
 
+def svm_convert_data(fn):
+    """
+    Convert our data set into a format that libsvm can read.
+    """
+
+    with open(DATA + fn + "-svm", "w") as out:
+        for y, x in zip(*read_data(fn)):
+            out.write("%d " % y)
+            out.write(" ".join(["%d:%d" % (i, x) for i, x in enumerate(x) if x]))
+            out.write("\n")
+
+
 def normalize(data):
     """Scale down features to range 0-1, for faster convergence."""
     X = np.asarray(data)
@@ -213,6 +225,10 @@ def part_d():
 
 
 if __name__ == '__main__':
+
+    # Convert data to a format that libsvm can recognize
+    # svm_convert_data("test")
+    # svm_convert_data("train")
 
     # part_c()
     part_d()
