@@ -5,8 +5,9 @@ import math
 import re
 
 from contexttimer import Timer as TimeIt
-
 from collections import Counter, defaultdict
+
+from common import accuracy
 
 alnum = re.compile(r'[^A-Za-z]+')
 
@@ -59,27 +60,6 @@ def classify(review, priors, wrd_cnt, wrd_cnt_tot, len_vocab):
 
     # Return the class with maximum probability
     return max(probs, key=probs.get)
-
-
-def accuracy(reviews, labels, *args):
-    """Find accuracy of the model."""
-
-    # TODO: Build a confusion matrix
-
-    # TODO: Convert the confusion matrix into a plot
-    # https://stackoverflow.com/questions/2148543
-    # http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
-
-    right, wrong = 0, 0
-
-    for r, c in zip(reviews, labels):
-
-        if c == classify(r, *args):
-            right += 1
-        else:
-            wrong += 1
-
-    return right / (right + wrong)
 
 
 def train():
