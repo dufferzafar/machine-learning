@@ -2,6 +2,7 @@
 
 # Python's stdlib
 import math
+import random
 import re
 
 from contexttimer import Timer as TimeIt
@@ -34,6 +35,7 @@ def read_data(typ):
     return train_x, train_y
 
 
+# Data
 train_x, train_y = read_data("train")
 test_x, test_y = read_data("test")
 
@@ -109,8 +111,23 @@ def part_a():
     print("\nTesting Accuracy: %.3f\n" % (test_acc * 100))
 
 
+def part_b():
+
+    ratings = list(set(train_y))
+    random_predictions = [random.choice(ratings) for _ in test_x]
+    rand_acc = accuracy(random_predictions, test_y)
+
+    print("\nRandom Accuracy: %.3f\n" % (rand_acc * 100))
+
+    majority_class = Counter(train_y).most_common(1)[0][0]
+
+    majority_predictions = [majority_class] * len(test_x)
+    maj_acc = accuracy(majority_predictions, test_y)
+
+    print("\nMajority Accuracy: %.3f\n" % (maj_acc * 100))
+
+
 if __name__ == '__main__':
 
     part_a()
 
-    # TODO: Print random & majority accuracy?
