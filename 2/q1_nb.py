@@ -34,6 +34,10 @@ def read_data(typ):
     return train_x, train_y
 
 
+train_x, train_y = read_data("train")
+test_x, test_y = read_data("test")
+
+
 def classify(review, priors, wrd_cnt, wrd_cnt_tot, len_vocab):
     """Classify a review into a class."""
 
@@ -65,8 +69,6 @@ def classify(review, priors, wrd_cnt, wrd_cnt_tot, len_vocab):
 def train():
     """Process the training data and return parameters of the model."""
 
-    train_x, train_y = read_data("train")
-
     # Prior probabilites of the data
     cnts = Counter(train_y)
     total = sum(cnts.values())
@@ -85,25 +87,24 @@ def train():
     for ctr in wrd_cnt.values():
         vocab |= set(ctr.keys())
 
-    return train_x, train_y, (priors, wrd_cnt, wrd_cnt_tot, len(vocab))
+    return priors, wrd_cnt, wrd_cnt_tot, len(vocab)
 
 
 def part_a():
-
     with TimeIt(prefix="Training Naive Bayes"):
-        train_x, train_y, model = train()
+        model = train()
 
     print("")
 
     with TimeIt(prefix="Finding Training Accuracy"):
-        train_acc = accuracy(train_x, train_y, *model)
+        predicted = [classify(review, *model) for review in train_x]
+        train_acc = accuracy(predicted, train_y)
 
     print("\nTraining Accuracy: %.3f\n" % (train_acc * 100))
 
-    test_x, test_y = read_data("test")
-
     with TimeIt(prefix="Finding Testing Accuracy"):
-        test_acc = accuracy(test_x, test_y, *model)
+        predicted = [classify(review, *model) for review in test_x]
+        test_acc = accuracy(predicted, test_y)
 
     print("\nTesting Accuracy: %.3f\n" % (test_acc * 100))
 
