@@ -1,0 +1,9 @@
+
+# Contains all the data
+data/
+
+# https://www.csie.ntu.edu.tw/~cjlin/libsvm/
+libsvm/
+
+# Trained models
+models/
