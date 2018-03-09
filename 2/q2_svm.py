@@ -70,7 +70,7 @@ def pegasos(X, y, C, lmbd=1):
     # Initial guess of W
     # TODO: What if this gets changed?
     W = np.zeros(n + 1)
-    B = np.zeros(n + 1)
+    b = 0
 
     # TODO: Add convergence criteria
     # while not converged:
@@ -89,7 +89,7 @@ def pegasos(X, y, C, lmbd=1):
 
             # Find examples in this batch for which T < 1
             # TODO: Are these points the "support vectors" ?
-            T = yb @ ((W.T @ Xb) + B)
+            T = yb @ ((W.T @ Xb) + b)
             Tl1 = np.where(T < 1)
 
             W = (1 - eta) * W + C * np.sum(Xb[Tl1] * yb[Tl1])
@@ -97,7 +97,7 @@ def pegasos(X, y, C, lmbd=1):
             # TODO: Convergence could be change in w < thresh.
             # abs(W - W_old) < 10 ** - 3
 
-    return W, B
+    return W, b
 
 
 def part_b():
@@ -141,9 +141,9 @@ def part_b():
         # Pass each example to all classifiers
         for classes, params in classifiers.items():
             pos, neg = classes
-            W, B = params
+            W, b = params
 
-            if svm_classify(x, W, B) > 0:
+            if W.T @ x + b > 0:
                 p.append(pos)
             else:
                 p.append(neg)
