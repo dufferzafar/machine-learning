@@ -1,11 +1,9 @@
+import matplotlib.pyplot as plt
+import seaborn as sn
+
+
 def accuracy(actual, predicted):
     """Find accuracy of the model."""
-
-    # TODO: Build a confusion matrix
-
-    # TODO: Convert the confusion matrix into a plot
-    # https://stackoverflow.com/questions/2148543
-    # http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
 
     assert len(actual) == len(predicted)
 
@@ -37,3 +35,23 @@ def make_confusion(actual, predicted):
         cmm.append([cm[a][p] for p in sorted(cm[a])])
 
     return cmm
+
+
+def plot_confusion(actual, predicted, ticks, title):
+    """Plot the confusion matrix."""
+
+    cm = make_confusion(actual, predicted)
+    acc = " - Accuracy - %.2f\%" % (accuracy(actual, predicted) * 100)
+
+    # Could replace the above line by sklearn.metrics.confusion_matrix
+    # cm = confusion_matrix(actual, predicted)
+
+    plt.figure(figsize=(10, 7))
+    plt.title(title + acc)
+    ax = sn.heatmap(cm, fmt="d", annot=True, cbar=False,
+                    cmap=sn.cubehelix_palette(15),
+                    xticklabels=ticks, yticklabels=ticks)
+    ax.set(xlabel="Predicted", ylabel="Actual")
+
+    plt.savefig(title + ".png")
+    plt.close()
