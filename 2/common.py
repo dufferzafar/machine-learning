@@ -41,7 +41,7 @@ def plot_confusion(actual, predicted, ticks, title):
     """Plot the confusion matrix."""
 
     cm = make_confusion(actual, predicted)
-    acc = " - Accuracy - %.2f\%" % (accuracy(actual, predicted) * 100)
+    acc = " - %.2f%% accuracy" % (accuracy(actual, predicted) * 100)
 
     # Could replace the above line by sklearn.metrics.confusion_matrix
     # cm = confusion_matrix(actual, predicted)

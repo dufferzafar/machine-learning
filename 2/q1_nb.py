@@ -8,7 +8,7 @@ import re
 from contexttimer import Timer as TimeIt
 from collections import Counter, defaultdict
 
-from common import accuracy
+from common import accuracy, plot_confusion
 
 alnum = re.compile(r'[^A-Za-z]+')
 
