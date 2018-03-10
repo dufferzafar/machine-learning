@@ -88,6 +88,13 @@ def train():
     # for cls, ctr in wrd_cnt.items():
     #     wrd_cnt[cls] = Counter(dict(ctr.most_common(5000)))
 
+    # Now trying with most common and least common words
+    # NOTE: This reduces the accuracy even further :'( :'(
+    # for cls, ctr in wrd_cnt.items():
+    #     common = ctr.most_common()
+    #     most, least = common[:3500], common[-3500:]
+    #     wrd_cnt[cls] = Counter(dict(most + least))
+
     # Total words in documents of a class
     wrd_cnt_tot = {cls: sum(ctr.values()) for cls, ctr in wrd_cnt.items()}
 
