@@ -24,20 +24,22 @@ def clean_line(l):
 
 
 def read_file(fn, clean=lambda l: l.strip()):
+    # print("reading ", fn)
     with open(DATA + fn) as f:
         # NOTE: Could remove the list here!
         return list(map(clean, f.readlines()))
 
 
-def read_data(typ):
-    train_x = read_file("imdb_%s_text.txt" % typ, clean_line)
+def read_data(typ, stem=False):
+    stem = "_stem" if stem else ""
+    train_x = read_file("imdb_%s_text%s.txt" % (typ, stem), clean_line)
     train_y = read_file("imdb_%s_labels.txt" % typ)
     return train_x, train_y
 
 
 # Data
-train_x, train_y = read_data("train")
-test_x, test_y = read_data("test")
+train_x, train_y = read_data("train", stem=True)
+test_x, test_y = read_data("test", stem=True)
 
 
 def classify(review, priors, wrd_cnt, wrd_cnt_tot, len_vocab):
