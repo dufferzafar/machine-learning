@@ -83,6 +83,11 @@ def train():
     for r, c in zip(train_x, train_y):
         wrd_cnt[c].update(r.split())
 
+    # Only keep the most common 1000 words in each class
+    # NOTE: This reduces the accuracy :'(
+    # for cls, ctr in wrd_cnt.items():
+    #     wrd_cnt[cls] = Counter(dict(ctr.most_common(5000)))
+
     # Total words in documents of a class
     wrd_cnt_tot = {cls: sum(ctr.values()) for cls, ctr in wrd_cnt.items()}
 
