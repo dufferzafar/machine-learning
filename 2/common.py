@@ -61,3 +61,16 @@ def plot_confusion(actual, predicted, ticks, title):
 
     plt.savefig(title + ".png")
     plt.close()
+
+
+def miss_rate(actual, predicted):
+    """Find the misclassification rate."""
+
+    cm = make_confusion(actual, predicted, dict_=True)
+
+    mr = {}
+    for a in cm:
+        mr[a] = sum([v for p, v in cm[a].items() if p != a]) / sum(cm[a].values())
+        mr[a] = round(mr[a] * 100, 2)
+
+    return mr
