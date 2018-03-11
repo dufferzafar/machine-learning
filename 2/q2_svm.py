@@ -1,4 +1,5 @@
 import csv
+import random
 
 from itertools import combinations
 
@@ -118,20 +119,9 @@ def pegasos(X, y, lmbd=1):
     return W, b
 
 
-def part_b():
-    print("\n--- Part B ---\n")
+def pegasos_train(train_x, train_y):
+    """Build 1vs1 SVM classifiers using Pegasos."""
 
-    print("Reading Data")
-    train_y, train_x = read_data("train")
-    test_y, test_x = read_data("test")
-
-    print("Normalizing")
-    train_x = normalize(train_x)
-    test_x = normalize(test_x)
-    train_y = np.asarray(train_y)
-    test_y = np.asarray(test_y)
-
-    # Build 10_C_2 1vs1 SVM classifiers
     classifiers = {}
     for classes in combinations(set(train_y), 2):
 
@@ -153,11 +143,17 @@ def part_b():
         # Fit a classifier and store the parameters
         classifiers[classes] = pegasos(X, y)
 
+    return classifiers
+
+
+def pegasos_predict(data, classifiers):
+    """Make predictions on data using 1v1 classifiers."""
+
     # Make predictions on test set
     predictions = []
 
     # Iterate over training set
-    for x in test_x:
+    for x in data:
 
         # Prediction for this particular example
         p = []
@@ -175,8 +171,31 @@ def part_b():
         # Find the class with the most count
         predictions.append(max(p, key=p.count))
 
-    # Now accuracy can be computed using actual labels and predicted ones
-    acc = accuracy(test_y.tolist(), predictions)
+    return predictions
+
+
+def part_b():
+    print("\n--- Part B ---\n")
+
+    print("Reading Data")
+    train_y, train_x = read_data("train")
+    test_y, test_x = read_data("test")
+
+    print("Normalizing")
+    train_x = normalize(train_x)
+    test_x = normalize(test_x)
+    train_y = np.asarray(train_y)
+    test_y = np.asarray(test_y)
+
+    # Build 10_C_2 classifiers
+    classifiers = pegasos_train(train_x, train_y)
+
+    predictions_test = pegasos_predict(test_x, classifiers)
+    acc = accuracy(test_y.tolist(), predictions_test)
+    print("Accuracy: %.2f" % (acc * 100))
+
+    predictions_train = pegasos_predict(train_x, classifiers)
+    acc = accuracy(test_y.tolist(), predictions_train)
     print("Accuracy: %.2f" % (acc * 100))
 
 
