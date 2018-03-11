@@ -47,11 +47,17 @@ def plot_confusion(actual, predicted, ticks, title):
     # cm = confusion_matrix(actual, predicted)
 
     plt.figure(figsize=(10, 7))
-    plt.title(title + acc)
+
     ax = sn.heatmap(cm, fmt="d", annot=True, cbar=False,
                     cmap=sn.cubehelix_palette(15),
                     xticklabels=ticks, yticklabels=ticks)
     ax.set(xlabel="Predicted", ylabel="Actual")
+
+    # Move X-Axis to top
+    ax.xaxis.tick_top()
+    ax.xaxis.set_label_position('top')
+
+    plt.title(title + acc, y=1.10)
 
     plt.savefig(title + ".png")
     plt.close()
