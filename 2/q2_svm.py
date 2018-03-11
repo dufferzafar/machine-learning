@@ -92,16 +92,15 @@ def pegasos(X, y, C, lmbd=1):
         for batch in range(int(m / r)):
 
             # Data in this batch:
-            Xb = X[batch:batch + r]
-            yb = y[batch:batch + r]
+            Xb = X[r * batch:r * batch + r]
+            yb = y[r * batch:r * batch + r]
 
             # Find examples in this batch for which T < 1
             # TODO: Are these points the "support vectors" ?
             T = yb * ((W @ Xb.T) + b)
             Tl1 = np.where(T < 1)
 
-            # TODO: Check if axis is given correctly
-            W = (1 - eta) * W + eta * C * np.sum(yb[Tl1] * Xb[Tl1].T)
+            W = (1 - eta) * W + eta * C * np.sum(yb[Tl1] * Xb[Tl1].T, axis=1)
             b = b + eta * C * np.sum(yb[Tl1])
 
             # TODO: Convergence could be change in w < thresh.
