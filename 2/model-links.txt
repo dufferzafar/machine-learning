@@ -1,0 +1,30 @@
+Download all the models and place them in a models/ directory!
+
+Question 1 - Naive Bayes:
+
+    1 NB model corresponding to part-a i.e. without stemming and stopword removal.
+
+        http://168.235.91.135:3030/~dufferzafar/ml-models/naive-bayes-model-1
+
+    2 NB model corresponding to part-d i.e. with stemming and stopword removal.
+
+        http://168.235.91.135:3030/~dufferzafar/ml-models/naive-bayes-model-2
+
+    3 NB model corresponding to part-e, i.e. your best model.
+
+        http://168.235.91.135:3030/~dufferzafar/ml-models/naive-bayes-model-3
+
+
+Question 2 - SVM:
+
+    1 Pegasos model corresponding to part b.
+
+        http://168.235.91.135:3030/~dufferzafar/ml-models/svm-model-1
+
+    2 Libsvm model (linear kernel) corresponding to part c.
+
+        http://168.235.91.135:3030/~dufferzafar/ml-models/svm-model-2
+
+    3 Best Libsvm model (rbf kernel) corresponding to part d.
+
+        http://168.235.91.135:3030/~dufferzafar/ml-models/svm-model-3
