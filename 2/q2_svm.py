@@ -224,6 +224,29 @@ def part_d():
         results.append((c, cv_acc, test_acc[0]))
 
 
+def part_d_2():
+    cvals = [0.00001, 0.001, 1, 5, 10]
+
+    # These values were found by running the libsvm CLI tools
+    c_acc = [71.59, 71.59, 97.355, 97.455, 97.455]
+    t_acc = [72.11, 72.11, 97.23, 97.29, 97.29]
+
+    c_line, = plt.plot(cvals, c_acc, label="Avg. Acc. after 10 fold cross-validation.",
+                       linestyle='-', color='r', marker='x')
+
+    t_line, = plt.plot(cvals, t_acc, label="Acc. on Test Set",
+                       linestyle='-', color='b', marker='o')
+
+    plt.legend(handles=[c_line, t_line])
+
+    plt.xscale('log')
+    plt.xlabel("C")
+    plt.ylabel("Accuracy")
+    plt.title("Effect of varying value of C on accuracy of Gaussian kernel SVM")
+    plt.savefig("part_d_2.png")
+    plt.close()
+
+
 if __name__ == '__main__':
 
     # Convert data to a format that libsvm can recognize
@@ -231,4 +254,5 @@ if __name__ == '__main__':
     # svm_convert_data("train")
 
     # part_c()
-    part_d()
+    # part_d()
+    part_d_2()
