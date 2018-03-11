@@ -1,19 +1,22 @@
 #!/bin/bash
 
-ques="$1"
-model="$2"
-input="$3"
-output="$4"
-
 if [ $1 -eq 1 ]; then
     printf "Question: Naive Bayes\n\n"
 
-    model_file=models/naive-bayes-model-$model
+    model_file=models/naive-bayes-model-$2
 
-    ./run.py 1 $model_file $input $output
+    ./run.py 1 $model_file $3 $4
 
 elif [ $1 -eq 2 ]; then
-       echo "Question: SVM"
+    printf "Question: SVM\n\n"
+
+    model_file=models/svm-model-$2
+
+    ./run.py 2 $model_file $3 $4
+
+    if [ $2 -ne 1 ]; then
+        svm-predict $3-svm-fmt $model_file $4
+    fi
 
 else
     echo "usage: ./run.sh <Question_number> <model_number> <input_file_name> <output_file_name>"
