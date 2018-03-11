@@ -4,9 +4,10 @@
 import math
 import random
 import re
+import pickle
 
 from contexttimer import Timer as TimeIt
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, namedtuple
 
 from common import accuracy, plot_confusion
 
@@ -15,6 +16,8 @@ alnum = re.compile(r'[^A-Za-z]+')
 
 # Data directory
 DATA = "data/imdb/"
+
+NBmodel = namedtuple("NBmodel", ["priors", "wrd_cnt", "wrd_cnt_tot", "len_vocab"])
 
 
 def clean_line(l):
@@ -42,25 +45,25 @@ train_x, train_y = read_data("train", stem=True)
 test_x, test_y = read_data("test", stem=True)
 
 
-def classify(review, priors, wrd_cnt, wrd_cnt_tot, len_vocab):
+def classify(review, m):
     """Classify a review into a class."""
 
     # Start with only the priors
-    probs = priors.copy()
+    probs = m.priors.copy()
 
     # Find the probabilities of this review belonging to each class
-    for cls in priors.keys():
+    for cls in m.priors.keys():
 
         for word in review.split():
 
             # Count of a word may be zero for two reasons:
             # 1 - Word did not occur in reviews of that class
             # 2 - Word did not occur in the entire vocabulary
-            cnt = wrd_cnt[cls].get(word, 0)
+            cnt = m.wrd_cnt[cls].get(word, 0)
 
             # We handle both the cases similarly
             # by Laplace Smoothing
-            p = (cnt + 1) / (wrd_cnt_tot[cls] + len_vocab)
+            p = (cnt + 1) / (m.wrd_cnt_tot[cls] + m.len_vocab)
 
             # We use summation of logs to handle underflow issues
             # with low valued probabilities
@@ -79,6 +82,7 @@ def train():
     priors = {cls: cnt / total for cls, cnt in cnts.items()}
 
     # Store counts of each word in documents of each class
+    # NOTE: This is also called the raw count term frequency feature
     wrd_cnt = defaultdict(Counter)
     for r, c in zip(train_x, train_y):
         wrd_cnt[c].update(r.split())
@@ -103,26 +107,27 @@ def train():
     for ctr in wrd_cnt.values():
         vocab |= set(ctr.keys())
 
-    return priors, wrd_cnt, wrd_cnt_tot, len(vocab)
+    return NBmodel(priors, wrd_cnt, wrd_cnt_tot, len(vocab))
 
 
 def part_a():
     with TimeIt(prefix="Training Naive Bayes"):
         model = train()
 
-    print("")
+    with open("models/naive-bayes-model-1", "wb") as out:
+        pickle.dump(model, out)
 
     ratings = list(sorted(map(int, set(train_y))))
 
     with TimeIt(prefix="Finding Training Accuracy"):
-        predicted = [classify(review, *model) for review in train_x]
+        predicted = [classify(review, model) for review in train_x]
         train_acc = accuracy(train_y, predicted)
 
     print("\nTraining Accuracy: %.3f\n" % (train_acc * 100))
     plot_confusion(train_y, predicted, ratings, "Naive Bayes (Training Data)")
 
     with TimeIt(prefix="Finding Testing Accuracy"):
-        predicted = [classify(review, *model) for review in test_x]
+        predicted = [classify(review, model) for review in test_x]
         test_acc = accuracy(test_y, predicted)
 
     plot_confusion(test_y, predicted, ratings, "Naive Bayes (Testing Data)")
