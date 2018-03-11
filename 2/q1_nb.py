@@ -92,33 +92,35 @@ def train():
     priors = {cls: cnt / total for cls, cnt in cnts.items()}
 
     # Store counts of each word in documents of each class
-    # NOTE: This is also called the raw count term frequency feature
-    wrd_cnt = defaultdict(Counter)
+    term_freq = defaultdict(Counter)
+
+    # Store the number of documents that contain this word
+    doc_freq = Counter()
+
     for r, c in zip(train_x, train_y):
-        wrd_cnt[c].update(r.split())
-        # wrd_cnt[c].update(bigrams(r))
+        wrds = r.split()
+        term_freq[c].update(wrds)
+        doc_freq.update(set(wrds))
 
-    # Only keep the most common 1000 words in each class
-    # NOTE: This reduces the accuracy :'(
-    # for cls, ctr in wrd_cnt.items():
-    #     wrd_cnt[cls] = Counter(dict(ctr.most_common(5000)))
+        # bis = list(bigrams(r))
+        # term_freq[c].update(bis)
+        # doc_freq.update(set(bis))
 
-    # Now trying with most common and least common words
-    # NOTE: This reduces the accuracy even further :'( :'(
-    # for cls, ctr in wrd_cnt.items():
-    #     common = ctr.most_common()
-    #     most, least = common[:3500], common[-3500:]
-    #     wrd_cnt[cls] = Counter(dict(most + least))
+    # Convert raw term frequencies into TF-IDF scores
+    total_docs = len(train_x)
+    for cls, ctr in term_freq.items():
+        for wrd in ctr:
+            ctr[wrd] = ctr[wrd] * math.log(total_docs / doc_freq[wrd])
 
     # Total words in documents of a class
-    wrd_cnt_tot = {cls: sum(ctr.values()) for cls, ctr in wrd_cnt.items()}
+    wrd_cnt_tot = {cls: sum(ctr.values()) for cls, ctr in term_freq.items()}
 
     # Build a vocabulary of all words in the dataset
     vocab = set()
-    for ctr in wrd_cnt.values():
+    for ctr in term_freq.values():
         vocab |= set(ctr.keys())
 
-    return NBmodel(priors, wrd_cnt, wrd_cnt_tot, len(vocab))
+    return NBmodel(priors, term_freq, wrd_cnt_tot, len(vocab))
 
 
 def part_a():
