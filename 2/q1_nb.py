@@ -17,7 +17,9 @@ alnum = re.compile(r'[^A-Za-z]+')
 # Data directory
 DATA = "data/imdb/"
 
-NBmodel = namedtuple("NBmodel", ["priors", "wrd_cnt", "wrd_cnt_tot", "len_vocab"])
+NBmodel = namedtuple(
+    "NBmodel", ["priors", "wrd_cnt", "wrd_cnt_tot", "len_vocab"]
+)
 
 
 def clean_line(l):
