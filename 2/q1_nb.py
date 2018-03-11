@@ -162,7 +162,33 @@ def part_b():
     print("\nMajority Accuracy: %.3f\n" % (maj_acc * 100))
 
 
+def cheating():
+    """See what accuracy does sklearn give."""
+    from sklearn.naive_bayes import MultinomialNB
+    from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+    from sklearn.pipeline import Pipeline
+
+    clf = Pipeline([
+        ('vect', CountVectorizer(ngram_range=(1, 3))),
+        ('tfidf', TfidfTransformer()),
+        ('clf', MultinomialNB()),
+    ])
+
+    print("Training sklearn's Naive Bayes using TF-IDF")
+    clf.fit(train_x, train_y)
+
+    predicted = clf.predict(train_x)
+    train_acc = accuracy(train_y, predicted)
+    print("\nTraining Accuracy: %.3f\n" % (train_acc * 100))
+
+    predicted = clf.predict(test_x)
+    test_acc = accuracy(test_y, predicted)
+    print("Testing Accuracy: %.3f\n" % (test_acc * 100))
+
+
 if __name__ == '__main__':
 
     part_a()
     # part_b()
+
+    # cheating()
