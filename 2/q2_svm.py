@@ -34,7 +34,9 @@ def svm_convert_data(fn):
     with open(DATA + fn + "-svm", "w") as out:
         for y, x in zip(*read_data(fn)):
             out.write("%d " % y)
-            out.write(" ".join(["%d:%d" % (i, x) for i, x in enumerate(x) if x]))
+            out.write(" ".join(
+                ["%d:%d" % (i, x) for i, x in enumerate(x) if x])
+            )
             out.write("\n")
 
 
@@ -75,7 +77,7 @@ def pegasos(X, y, C, lmbd=1):
 
     # Initial guess of W
     # TODO: What if this gets changed?
-    W = np.zeros(n + 1)
+    W = np.zeros(n)
     b = 0
 
     # TODO: Add convergence criteria
@@ -87,7 +89,7 @@ def pegasos(X, y, C, lmbd=1):
         eta = 1 / it
 
         # Do updates in batches
-        for batch in range(m / r):
+        for batch in range(int(m / r)):
 
             # Data in this batch:
             Xb = X[batch:batch + r]
@@ -95,10 +97,12 @@ def pegasos(X, y, C, lmbd=1):
 
             # Find examples in this batch for which T < 1
             # TODO: Are these points the "support vectors" ?
-            T = yb @ ((W.T @ Xb) + b)
+            T = yb * ((W @ Xb.T) + b)
             Tl1 = np.where(T < 1)
 
-            W = (1 - eta) * W + C * np.sum(Xb[Tl1] * yb[Tl1])
+            # TODO: Check if axis is given correctly
+            W = (1 - eta) * W + eta * C * np.sum(yb[Tl1] * Xb[Tl1].T)
+            b = b + eta * C * np.sum(yb[Tl1])
 
             # TODO: Convergence could be change in w < thresh.
             # abs(W - W_old) < 10 ** - 3
@@ -107,7 +111,7 @@ def pegasos(X, y, C, lmbd=1):
 
 
 def part_b():
-    print("\n--- Part A ---\n")
+    print("\n--- Part B ---\n")
 
     print("Reading Data")
     train_y, train_x = read_data("train")
@@ -300,4 +304,4 @@ if __name__ == '__main__':
 
     # part_d_2()
 
-    part_e()
+    # part_e()
