@@ -11,7 +11,7 @@ def accuracy(actual, predicted):
     return correct / len(actual)
 
 
-def make_confusion(actual, predicted):
+def make_confusion(actual, predicted, dict_=False):
     """Create a confusion matrix from two list of labels."""
 
     assert len(actual) == len(predicted)
@@ -25,8 +25,18 @@ def make_confusion(actual, predicted):
     }
 
     # Update entries with counts
-    for a, p in zip(actual, predicted):
+    for i, (a, p) in enumerate(zip(actual, predicted)):
         cm[a][p] += 1
+
+        # These checks were added AFTER generating the confusion matrix
+        # to find out examples that are being misclassified.
+        # if a == 9 and p == 8:
+        # if a == 7 and p == 2:
+        #     print(i)
+
+    # If a dict is required, return!
+    if dict_:
+        return cm
 
     # Now convert into a matrix form
     # TODO: See if seaborn can take dictionaries as input
