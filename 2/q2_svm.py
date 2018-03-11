@@ -185,6 +185,8 @@ def part_b():
     test_y, test_x = read_data("test")
 
     print("Normalizing")
+    # train_x = np.asarray(train_x)
+    # test_x = np.asarray(test_x)
     train_x = normalize(train_x)
     test_x = normalize(test_x)
     train_y = np.asarray(train_y)
