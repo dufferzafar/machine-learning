@@ -272,7 +272,8 @@ def part_e():
     # Examples that actually belong to class 8 but we predict them to be in class 9
     # Found while making the confusion matrix in make_confusion
     a9_p8 = [151, 241, 448, 1107, 2406, 6081, 6091, 6112, 6157, 6168, 617]
-    a7_p2 = [810, 1226, 1283, 1754, 1941, 2016, 2325, 2607, 3767, 4690, 4837, 5887, 7432, 8316, 9009, 9015, 9019, 9024, 9036, 9045]
+    a7_p2 = [810, 1226, 1283, 1754, 1941, 2016, 2325, 2607, 3767,
+             4690, 4837, 5887, 7432, 8316, 9009, 9015, 9019, 9024, 9036, 9045]
 
     # Let us plot these to see what they are
     for idx in a9_p8:
