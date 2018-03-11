@@ -55,7 +55,7 @@ def normalize(data):
 
 
 # This is the part a of the assignment
-def pegasos(X, y, C, lmbd=1):
+def pegasos(X, y, lmbd=1):
     """
     Pegasos: Primal Estimated sub-GrAdient SOlver for SVM.
 
@@ -74,37 +74,46 @@ def pegasos(X, y, C, lmbd=1):
 
     # Batch size
     r = 100
+    C = 1 / r
 
     # Initial guess of W
     # TODO: What if this gets changed?
     W = np.zeros(n)
     b = 0
 
-    # TODO: Add convergence criteria
-    # while not converged:
-    for it in range(500):
+    iters = 0
+    converged = False
+
+    while not converged:
+
+        iters += 1
 
         # Because this is stochastic descent
         # we decrease eta as we go ahead
-        eta = 1 / it
+        eta = 1 / iters
 
-        # Do updates in batches
-        for batch in range(int(m / r)):
+        # Find indices of elements in this batch
+        batch = np.array(random.sample(range(m), r))
+        Xb, yb = X[batch], y[batch]
 
-            # Data in this batch:
-            Xb = X[r * batch:r * batch + r]
-            yb = y[r * batch:r * batch + r]
+        # Find examples in this batch for which T < 1
+        # TODO: Are these points the "support vectors" ?
+        T = yb * ((W @ Xb.T) + b)
+        Tl1 = np.where(T < 1)
 
-            # Find examples in this batch for which T < 1
-            # TODO: Are these points the "support vectors" ?
-            T = yb * ((W @ Xb.T) + b)
-            Tl1 = np.where(T < 1)
+        Wp = W
 
-            W = (1 - eta) * W + eta * C * np.sum(yb[Tl1] * Xb[Tl1].T, axis=1)
-            b = b + eta * C * np.sum(yb[Tl1])
+        W = (1 - eta) * W + eta * C * np.sum(yb[Tl1] * Xb[Tl1].T, axis=1)
+        b = b + eta * C * np.sum(yb[Tl1])
 
-            # TODO: Convergence could be change in w < thresh.
-            # abs(W - W_old) < 10 ** - 3
+        # Convergence criteria
+        if all(abs(Wp - W) < 10**-5):
+            converged = True
+
+        # Prevent us from going in infinite loops
+        if iters >= 10000:
+            print("Abrupt Stop")
+            break
 
     return W, b
 
@@ -142,7 +151,7 @@ def part_b():
         y = np.array([1] * len(Xpos) + [-1] * len(Xneg))
 
         # Fit a classifier and store the parameters
-        classifiers[classes] = pegasos(X, y, C=0.01)
+        classifiers[classes] = pegasos(X, y)
 
     # Make predictions on test set
     predictions = []
