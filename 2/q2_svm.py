@@ -1,5 +1,6 @@
 import csv
 import random
+import pickle
 
 from itertools import combinations
 
@@ -195,6 +196,9 @@ def part_b():
     # Build 10_C_2 classifiers
     print("Building Classifiers")
     classifiers = pegasos_train(train_x, train_y)
+
+    with open("models/svm-model-1", "wb") as m:
+        pickle.dump(classifiers, m)
 
     print("Finding Accuracy")
     predictions_test = pegasos_predict(test_x, classifiers)
