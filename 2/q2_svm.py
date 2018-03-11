@@ -335,7 +335,7 @@ if __name__ == '__main__':
 
     # In part a we just have to implement pegasos
 
-    # part_b()
+    part_b()
 
     # Convert data to a format that libsvm can recognize
     # svm_convert_data("test")

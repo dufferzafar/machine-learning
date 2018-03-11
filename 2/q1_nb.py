@@ -114,7 +114,7 @@ def part_a():
     with TimeIt(prefix="Training Naive Bayes"):
         model = train()
 
-    with open("models/naive-bayes-model-1", "wb") as out:
+    with open("models/naive-bayes-model-2", "wb") as out:
         pickle.dump(model, out)
 
     ratings = list(sorted(map(int, set(train_y))))
@@ -152,4 +152,4 @@ def part_b():
 if __name__ == '__main__':
 
     part_a()
-
+    # part_b()
