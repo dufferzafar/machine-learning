@@ -75,7 +75,7 @@ def pegasos(X, y, lmbd=1):
 
     # Batch size
     r = 100
-    C = 1 / r
+    C = 1.0
 
     # Initial guess of W
     # TODO: What if this gets changed?
@@ -108,7 +108,7 @@ def pegasos(X, y, lmbd=1):
         b = b + eta * C * np.sum(yb[Tl1])
 
         # Convergence criteria
-        if all(abs(Wp - W) < 10**-5):
+        if all(abs(Wp - W) <= 10**-3):
             converged = True
 
         # Prevent us from going in infinite loops
@@ -129,7 +129,7 @@ def pegasos_train(train_x, train_y):
         # and the other negative
         pos, neg = classes
 
-        print("Training classifier between classes %d & %d" % (pos, neg))
+        # print("Training classifier between classes %d & %d" % (pos, neg))
 
         # Find examples of these classes
         Xpos = train_x[np.where(train_y == pos)]
@@ -165,6 +165,9 @@ def pegasos_predict(data, classifiers):
 
             if W.T @ x + b > 0:
                 p.append(pos)
+            # In case of ties, predict digit with bigger value
+            elif W.T @ x + b == 0:
+                p.append(max(pos, neg))
             else:
                 p.append(neg)
 
@@ -188,15 +191,17 @@ def part_b():
     test_y = np.asarray(test_y)
 
     # Build 10_C_2 classifiers
+    print("Building Classifiers")
     classifiers = pegasos_train(train_x, train_y)
 
+    print("Finding Accuracy")
     predictions_test = pegasos_predict(test_x, classifiers)
     acc = accuracy(test_y.tolist(), predictions_test)
-    print("Accuracy: %.2f" % (acc * 100))
+    print("Testing Accuracy: %.2f" % (acc * 100))
 
     predictions_train = pegasos_predict(train_x, classifiers)
-    acc = accuracy(test_y.tolist(), predictions_train)
-    print("Accuracy: %.2f" % (acc * 100))
+    acc = accuracy(train_y.tolist(), predictions_train)
+    print("Training Accuracy: %.2f" % (acc * 100))
 
 
 def part_c():
