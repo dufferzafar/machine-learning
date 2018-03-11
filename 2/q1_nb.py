@@ -40,6 +40,10 @@ def read_data(typ, stem=False):
     return train_x, train_y
 
 
+def bigrams(s):
+    return zip(s.split(" ")[:-1], s.split(" ")[1:])
+
+
 # Data
 train_x, train_y = read_data("train", stem=True)
 test_x, test_y = read_data("test", stem=True)
@@ -69,6 +73,12 @@ def classify(review, m):
             # with low valued probabilities
             probs[cls] += math.log(p)
 
+        # Also consider bigrams
+        # for bi in bigrams(review):
+        #     cnt = m.wrd_cnt[cls].get(bi, 0)
+        #     p = (cnt + 1) / (m.wrd_cnt_tot[cls] + m.len_vocab)
+        #     probs[cls] += math.log(p)
+
     # Return the class with maximum probability
     return max(probs, key=probs.get)
 
@@ -86,6 +96,7 @@ def train():
     wrd_cnt = defaultdict(Counter)
     for r, c in zip(train_x, train_y):
         wrd_cnt[c].update(r.split())
+        # wrd_cnt[c].update(bigrams(r))
 
     # Only keep the most common 1000 words in each class
     # NOTE: This reduces the accuracy :'(
@@ -114,7 +125,7 @@ def part_a():
     with TimeIt(prefix="Training Naive Bayes"):
         model = train()
 
-    with open("models/naive-bayes-model-2", "wb") as out:
+    with open("models/naive-bayes-model-3", "wb") as out:
         pickle.dump(model, out)
 
     ratings = list(sorted(map(int, set(train_y))))
