@@ -12,7 +12,7 @@ from svmutil import (
     svm_train,
 )
 
-from common import plot_confusion, miss_rate
+from common import plot_confusion, miss_rate, accuracy
 
 DATA = "data/mnist/"
 
@@ -130,6 +130,8 @@ def part_b():
         # and the other negative
         pos, neg = classes
 
+        print("Training classifier between classes %d & %d" % (pos, neg))
+
         # Find examples of these classes
         Xpos = train_x[np.where(train_y == pos)]
         Xneg = train_x[np.where(train_y == neg)]
@@ -140,11 +142,15 @@ def part_b():
         y = np.array([1] * len(Xpos) + [-1] * len(Xneg))
 
         # Fit a classifier and store the parameters
-        classifiers[classes] = pegasos(X, y, C=0.5)
+        classifiers[classes] = pegasos(X, y, C=0.01)
+
+    # Make predictions on test set
+    predictions = []
 
     # Iterate over training set
     for x in test_x:
 
+        # Prediction for this particular example
         p = []
 
         # Pass each example to all classifiers
@@ -158,9 +164,12 @@ def part_b():
                 p.append(neg)
 
         # Find the class with the most count
-        predicted_labels.append(max(p, p.count))
+        predictions.append(max(p, key=p.count))
 
     # Now accuracy can be computed using actual labels and predicted ones
+    acc = accuracy(test_y.tolist(), predictions)
+    print("Accuracy: %.2f" % (acc * 100))
+
 
 def part_c():
     print("\n--- Part C ---\n")
