@@ -15,7 +15,8 @@ elif [ $1 -eq 2 ]; then
     ./run.py 2 $model_file $3 $4
 
     if [ $2 -ne 1 ]; then
-        svm-predict $3-svm-fmt $model_file $4
+        svm-scale -l 0 -u 1 $3-svm-fmt > $3-svm-fmt-scaled
+        svm-predict $3-svm-fmt-scaled $model_file $4
     fi
 
 else

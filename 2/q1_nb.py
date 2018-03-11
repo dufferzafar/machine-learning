@@ -139,13 +139,13 @@ def part_a():
         train_acc = accuracy(train_y, predicted)
 
     print("\nTraining Accuracy: %.3f\n" % (train_acc * 100))
-    plot_confusion(train_y, predicted, ratings, "Naive Bayes (Training Data)")
+    plot_confusion(list(map(int, train_y)), list(map(int, predicted)), ratings, "Naive Bayes (Training Data)")
 
     with TimeIt(prefix="Finding Testing Accuracy"):
         predicted = [classify(review, model) for review in test_x]
         test_acc = accuracy(test_y, predicted)
 
-    plot_confusion(test_y, predicted, ratings, "Naive Bayes (Testing Data)")
+    plot_confusion(list(map(int, test_y)), list(map(int, predicted)), ratings, "Naive Bayes (Testing Data)")
     print("\nTesting Accuracy: %.3f\n" % (test_acc * 100))
 
 
