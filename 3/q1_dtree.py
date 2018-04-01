@@ -29,13 +29,14 @@ valid_data = preprocess("data/valid.csv")
 
 # Internal (decision) node of the tree
 Node = namedtuple("Node", [
-    "attr_idx",     # Index of the attribute to make decision on
-    "children"
+    "attr_idx",  # Index of the attribute to make decision on
+    "children",  # A dictionary of attribute values and child nodes
+    "cls",       # Majority class at this node
 ])
 
 # Leaf nodes
 Leaf = namedtuple("Leaf", [
-    "cls"           # Class to predict at this leaf
+    "cls",       # Majority class at this leaf
 ])
 
 
@@ -100,11 +101,12 @@ def build_decision_tree(data):
     """
 
     Y = data[:, 0]
+    majority_class = np.bincount(Y).argmax()
 
     # if data is "pure" i.e has examples of a single class
     # then return a leaf node predicting that class
     if len(set(Y)) <= 1:
-        return Leaf(cls=data[0][0])
+        return Leaf(cls=majority_class)
 
     # if all features finished?
     # TODO: Will info gain handle attribute repetitions?
@@ -117,19 +119,25 @@ def build_decision_tree(data):
         children = {v: build_decision_tree(data[p])
                     for v, p in partition(data[:, attr_idx]).items()}
 
-        return Node(attr_idx, children)
+        return Node(attr_idx, children, majority_class)
     else:
         # Otherwise create a leaf node that predicts the majority class
-        return Leaf(cls=np.bincount(Y).argmax())
+        return Leaf(cls=majority_class)
 
 
 def dtree_predict(dtree, x):
     """Predict a single example using dtree."""
-
     if isinstance(dtree, Leaf):
         return dtree.cls
     else:
-        return dtree_predict(dtree.children[x[dtree.attr_idx]], x)
+        child = dtree.children.get(x[dtree.attr_idx])
+
+        # If there isn't a correct outgoing edge
+        # then just return the majority class
+        if not child:
+            return dtree.cls
+        else:
+            return dtree_predict(child, x)
 
 
 def dtree_score(dtree, data):
