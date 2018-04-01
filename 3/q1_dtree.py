@@ -29,9 +29,7 @@ valid_data = preprocess("data/valid.csv")
 # Internal (decision) node of the tree
 Node = namedtuple("Node", [
     "attr_idx",     # Index of the attribute to make decision on
-    "threshold",    # Threshold value for the attribute
-    "true_branch",  # Branch where data[attr_idx] <= threshold
-    "false_branch"  # Branch where data[attr_idx] >  threshold
+    "children"
 ])
 
 # Leaf nodes
@@ -48,7 +46,16 @@ def entropy(Y):
     _, counts = np.unique(Y, return_counts=True)
     probabilities = counts.astype('float') / len(Y)
 
-    return sum(-1 * p * np.log2(p) for p in probabilities if p)
+    return -1 * sum(p * np.log2(p) for p in probabilities if p)
+
+
+def partition(Xa):
+    """
+    Partition a column based on the unique values it takes.
+
+    { value: [indices where that value occurs in the column] }
+    """
+    return {v: np.where(Xa == v)[0] for v in np.unique(Xa)}
 
 
 def best_attribute(data):
@@ -56,21 +63,32 @@ def best_attribute(data):
     Use information gain to decide which attribute to split on.
     """
 
+    # Need to find these parameters
+    best_gain = -1
+    best_attr = -1
+
     Y = data[:, 0]
     X = data[:, 1:]
 
-    # Find these parameters
-    best_gain = 0.0
-    best_attr = 0
-    best_threshold = 0
-    true_data = []
-    false_data = []
-
     # Iterate over each attribute
-    for Xa in X.T:
+    for i, Xa in enumerate(X.T):
 
-        for val in np.unique(Xa):
+        # Create partitions over this attribute
+        entropy_Y_Xa = sum((len(p) / len(Xa)) * entropy(Y[p])
+                           for p in partition(Xa).values())
 
+        gain = entropy(Y) - entropy_Y_Xa
+
+        # TODO: In case of a tie, choose the attribute which appears first in the
+        # ordering as given in the training data.
+        if gain > best_gain:
+            best_gain = gain
+
+            # NOTE: +1 because the data contains output variables at 1st column
+            # so attributes/features start from 2nd column
+            best_attr = i + 1
+
+    return best_gain, best_attr
 
 
 def build_decision_tree(data):
@@ -84,17 +102,21 @@ def build_decision_tree(data):
 
     # if data is "pure" i.e has examples of a single class
     # then return a leaf node predicting that class
-    if len(set(Y)) == 1:
+    if len(set(Y)) <= 1:
         return Leaf(cls=data[0][0])
 
+    # if all features finished?
+    # TODO: Will info gain handle attribute repetitions?
+
     # Find the attribute that maximizes the gain
-    gain, attr_idx, threshold, true_data, false_data = best_attribute(data)
+    gain, attr_idx = best_attribute(data)
 
     if gain > 0:
         # Split if gain is positive
-        return Node(attr_idx, threshold,
-                    build_decision_tree(true_data),
-                    build_decision_tree(false_data))
+        children = {v: build_decision_tree(data[p])
+                    for v, p in partition(data[:, attr_idx]).items()}
+
+        return Node(attr_idx, children)
     else:
         # Otherwise create a leaf node that predicts the majority class
         return Leaf(cls=np.bincount(Y).argmax())
@@ -107,15 +129,36 @@ def dtree_predict(x, dtree):
 
     if isinstance(dtree, Leaf):
         return dtree.cls
+    else:
+        x[dtree.attr_idx]
+
+
+def dtree_height(dtree):
+    if isinstance(dtree, Leaf):
+        return 0
+    else:
+        return 1 + max(map(dtree_height, dtree.children.values()))
+
+
+def dtree_node_count(dtree):
+    if isinstance(dtree, Leaf):
+        return 1
+    else:
+        return 1 + sum(map(dtree_node_count, dtree.children.values()))
 
 
 def part_a():
 
-    dtree = build_decision_tree(train_data)
+    # dtree = build_decision_tree(train_data)
+    dtree = build_decision_tree(valid_data)
 
-    train_acc = dtree_score(dtree, train_data)
-    test_acc = dtree_score(dtree, test_data)
-    valid_acc = dtree_score(dtree, valid_data)
+    print(dtree_height(dtree))
+    print(dtree_node_count(dtree))
+    # print(dtree)
+
+    # train_acc = dtree_score(dtree, train_data)
+    # test_acc = dtree_score(dtree, test_data)
+    # valid_acc = dtree_score(dtree, valid_data)
 
 
 def part_d():
@@ -189,5 +232,7 @@ def part_e():
 
 if __name__ == '__main__':
 
-    part_d()
-    part_e()
+    part_a()
+
+    # part_d()
+    # part_e()
