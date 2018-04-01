@@ -18,6 +18,7 @@ from sklearn.model_selection import ParameterGrid
 from sklearn.ensemble import RandomForestClassifier
 
 from read_data import preprocess
+from common import accuracy
 
 
 # TODO: Move this data reading into a function
@@ -122,15 +123,19 @@ def build_decision_tree(data):
         return Leaf(cls=np.bincount(Y).argmax())
 
 
-def dtree_predict(x, dtree):
-    """
-    Predict a single example using dtree.
-    """
+def dtree_predict(dtree, x):
+    """Predict a single example using dtree."""
 
     if isinstance(dtree, Leaf):
         return dtree.cls
     else:
-        x[dtree.attr_idx]
+        return dtree_predict(dtree.children[x[dtree.attr_idx]], x)
+
+
+def dtree_score(dtree, data):
+    """Find accuracy of dtree over data."""
+    predictions = [dtree_predict(dtree, x) for x in data]
+    return accuracy(data[:, 0], predictions)
 
 
 def dtree_height(dtree):
@@ -149,16 +154,15 @@ def dtree_node_count(dtree):
 
 def part_a():
 
-    # dtree = build_decision_tree(train_data)
-    dtree = build_decision_tree(valid_data)
+    print("Building Decision Tree (on training data)")
+    dtree = build_decision_tree(train_data)
 
-    print(dtree_height(dtree))
-    print(dtree_node_count(dtree))
-    # print(dtree)
+    print("Tree height", dtree_height(dtree))
+    print("Tree node count", dtree_node_count(dtree))
 
-    # train_acc = dtree_score(dtree, train_data)
-    # test_acc = dtree_score(dtree, test_data)
-    # valid_acc = dtree_score(dtree, valid_data)
+    print("Accuracy (training data)", dtree_score(dtree, train_data))
+    print("Accuracy (testing data)", dtree_score(dtree, test_data))
+    print("Accuracy (validation data)", dtree_score(dtree, valid_data))
 
 
 def part_d():
