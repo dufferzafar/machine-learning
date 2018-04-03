@@ -19,6 +19,13 @@ class Node():
         self.attr_idx = attr_idx  # Index of the attribute to make decision on
         self.children = children  # A dictionary of attribute values and child nodes
 
+    def __repr__(self):
+        if self.children:
+            r = (self.cls, self.attr_idx, len(self.children))
+            return "<Node: cls=%r, attr=%r, children=%r>" % r
+        else:
+            return "<Leaf: cls=%r>" % self.cls
+
 
 def entropy(Y):
     """
@@ -42,8 +49,11 @@ def partition(Xa):
 
 class DecisionTree():
 
-    def __init__(self, data):
-        self.root = self._build_tree(data)
+    def __init__(self, data=None):
+        if data is None:
+            self.root = None
+        else:
+            self.root = self._build_tree(data)
 
     @staticmethod
     def _build_tree(data, parent=None):
@@ -161,7 +171,7 @@ class DecisionTree():
             return 1 + sum(map(DecisionTree._node_count, dtree.children.values()))
 
     @staticmethod
-    def _remove_node_from_tree(node):
+    def _remove_node(node):
         parent = node.parent
 
         # Root can not be removed
@@ -174,6 +184,10 @@ class DecisionTree():
         for v, n in parent.children.items():
             if n == node:
                 del parent.children[v]
+                break
+
+        return parent
+
     # NOTE: There is a discrepancy in how the tree was built
     # and how it is being iterated upon; fix?
     # TODO: Use DFS instead of BFS?
