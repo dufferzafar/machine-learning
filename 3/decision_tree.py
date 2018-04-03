@@ -7,11 +7,11 @@ class Node():
 
     """Node of a tree."""
 
-    def __init__(self, cls, parent=None, attr_idx=None, children={}):
+    def __init__(self, parent, cls, attr_idx=None, children={}):
 
         # Majority class is stored at all nodes - leaf / internal
-        self.cls = cls
         self.parent = parent
+        self.cls = cls
 
         # While these are only stored on Internal (decision nodes)
         self.attr_idx = attr_idx  # Index of the attribute to make decision on
@@ -57,7 +57,7 @@ class DecisionTree():
         # if data is "pure" i.e has examples of a single class
         # then return a leaf node predicting that class
         if len(set(Y)) <= 1:
-            return Node(majority_class)
+            return Node(parent, majority_class)
 
         # if all features finished?
         # TODO: Will info gain handle attribute repetitions?
@@ -83,7 +83,7 @@ class DecisionTree():
 
         # Otherwise create a leaf node that predicts the majority class
         else:
-            return Node(majority_class)
+            return Node(parent, majority_class)
 
     @staticmethod
     def _best_attribute(data):
