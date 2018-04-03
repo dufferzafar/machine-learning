@@ -1,20 +1,20 @@
 import numpy as np
 
-from collections import namedtuple
 from common import accuracy
 
 
-# Internal (decision) node of the tree
-Node = namedtuple("Node", [
-    "attr_idx",  # Index of the attribute to make decision on
-    "children",  # A dictionary of attribute values and child nodes
-    "cls",       # Majority class at this node
-])
+class Node():
 
-# Leaf nodes
-Leaf = namedtuple("Leaf", [
-    "cls",       # Majority class at this leaf
-])
+    """Nodes of the tree."""
+
+    def __init__(self, cls, attr_idx=None, children={}):
+
+        # Majority class is stored at all nodes - leaf / internal
+        self.cls = cls
+
+        # While these are only stored on Internal (decision nodes)
+        self.attr_idx = attr_idx  # Index of the attribute to make decision on
+        self.children = children  # A dictionary of attribute values and child nodes
 
 
 def entropy(Y):
@@ -56,7 +56,7 @@ class DecisionTree():
         # if data is "pure" i.e has examples of a single class
         # then return a leaf node predicting that class
         if len(set(Y)) <= 1:
-            return Leaf(cls=majority_class)
+            return Node(majority_class)
 
         # if all features finished?
         # TODO: Will info gain handle attribute repetitions?
@@ -69,10 +69,10 @@ class DecisionTree():
             children = {v: DecisionTree._build_tree(data[p])
                         for v, p in partition(data[:, attr_idx]).items()}
 
-            return Node(attr_idx, children, majority_class)
+            return Node(majority_class, attr_idx, children)
         else:
             # Otherwise create a leaf node that predicts the majority class
-            return Leaf(cls=majority_class)
+            return Node(majority_class)
 
     @staticmethod
     def _best_attribute(data):
@@ -110,7 +110,7 @@ class DecisionTree():
     @staticmethod
     def _predict(dtree, x):
         """Predict a single example using dtree."""
-        if isinstance(dtree, Leaf):
+        if not dtree.children:
             return dtree.cls
         else:
             child = dtree.children.get(x[dtree.attr_idx])
@@ -132,7 +132,7 @@ class DecisionTree():
 
     @staticmethod
     def _height(dtree):
-        if isinstance(dtree, Leaf):
+        if not dtree.children:
             return 0
         else:
             return 1 + max(map(DecisionTree._height, dtree.children.values()))
@@ -142,7 +142,7 @@ class DecisionTree():
 
     @staticmethod
     def _node_count(dtree):
-        if isinstance(dtree, Leaf):
+        if not dtree.children:
             return 1
         else:
             return 1 + sum(map(DecisionTree._node_count, dtree.children.values()))
