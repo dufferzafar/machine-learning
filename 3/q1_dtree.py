@@ -8,8 +8,6 @@ Part D: sklearn's Decision Tree
 Part E: sklearn's Random Forest
 """
 
-from collections import namedtuple
-
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -18,8 +16,8 @@ from sklearn.model_selection import ParameterGrid
 from sklearn.ensemble import RandomForestClassifier
 
 from read_data import preprocess
-from common import accuracy
 
+from decision_tree import DecisionTree
 
 # TODO: Move this data reading into a function
 train_data = preprocess("data/train.csv")
@@ -27,150 +25,17 @@ test_data = preprocess("data/test.csv")
 valid_data = preprocess("data/valid.csv")
 
 
-# Internal (decision) node of the tree
-Node = namedtuple("Node", [
-    "attr_idx",  # Index of the attribute to make decision on
-    "children",  # A dictionary of attribute values and child nodes
-    "cls",       # Majority class at this node
-])
-
-# Leaf nodes
-Leaf = namedtuple("Leaf", [
-    "cls",       # Majority class at this leaf
-])
-
-
-def entropy(Y):
-    """
-    Calculate entropy from class labels.
-    """
-
-    _, counts = np.unique(Y, return_counts=True)
-    probabilities = counts.astype('float') / len(Y)
-
-    return -1 * sum(p * np.log2(p) for p in probabilities if p)
-
-
-def partition(Xa):
-    """
-    Partition a column based on the unique values it takes.
-
-    { value: [indices where that value occurs in the column] }
-    """
-    return {v: np.where(Xa == v)[0] for v in np.unique(Xa)}
-
-
-def best_attribute(data):
-    """
-    Use information gain to decide which attribute to split on.
-    """
-
-    # Need to find these parameters
-    best_gain = -1
-    best_attr = -1
-
-    Y = data[:, 0]
-    X = data[:, 1:]
-
-    # Iterate over each attribute
-    for i, Xa in enumerate(X.T):
-
-        # Create partitions over this attribute
-        entropy_Y_Xa = sum((len(p) / len(Xa)) * entropy(Y[p])
-                           for p in partition(Xa).values())
-
-        gain = entropy(Y) - entropy_Y_Xa
-
-        # TODO: In case of a tie, choose the attribute which appears first in the
-        # ordering as given in the training data.
-        if gain > best_gain:
-            best_gain = gain
-
-            # NOTE: +1 because the data contains output variables at 1st column
-            # so attributes/features start from 2nd column
-            best_attr = i + 1
-
-    return best_gain, best_attr
-
-
-def build_decision_tree(data):
-    """
-    Build a decision tree using ID3 / information gain.
-
-    First column (data[:, 0]) is the output class.
-    """
-
-    Y = data[:, 0]
-    majority_class = np.bincount(Y).argmax()
-
-    # if data is "pure" i.e has examples of a single class
-    # then return a leaf node predicting that class
-    if len(set(Y)) <= 1:
-        return Leaf(cls=majority_class)
-
-    # if all features finished?
-    # TODO: Will info gain handle attribute repetitions?
-
-    # Find the attribute that maximizes the gain
-    gain, attr_idx = best_attribute(data)
-
-    if gain > 0:
-        # Split if gain is positive
-        children = {v: build_decision_tree(data[p])
-                    for v, p in partition(data[:, attr_idx]).items()}
-
-        return Node(attr_idx, children, majority_class)
-    else:
-        # Otherwise create a leaf node that predicts the majority class
-        return Leaf(cls=majority_class)
-
-
-def dtree_predict(dtree, x):
-    """Predict a single example using dtree."""
-    if isinstance(dtree, Leaf):
-        return dtree.cls
-    else:
-        child = dtree.children.get(x[dtree.attr_idx])
-
-        # If there isn't a correct outgoing edge
-        # then just return the majority class
-        if not child:
-            return dtree.cls
-        else:
-            return dtree_predict(child, x)
-
-
-def dtree_score(dtree, data):
-    """Find accuracy of dtree over data."""
-    predictions = [dtree_predict(dtree, x) for x in data]
-    return accuracy(data[:, 0], predictions)
-
-
-def dtree_height(dtree):
-    if isinstance(dtree, Leaf):
-        return 0
-    else:
-        return 1 + max(map(dtree_height, dtree.children.values()))
-
-
-def dtree_node_count(dtree):
-    if isinstance(dtree, Leaf):
-        return 1
-    else:
-        return 1 + sum(map(dtree_node_count, dtree.children.values()))
-
-
 def part_a():
 
     print("Building Decision Tree (on training data)")
-    dtree = build_decision_tree(train_data)
+    dtree = DecisionTree(train_data)
 
-    print("Tree height", dtree_height(dtree))
-    print("Tree node count", dtree_node_count(dtree))
+    print("Tree height", dtree.height())
+    print("Tree node count", dtree.node_count())
 
-    print("Accuracy (training data)", dtree_score(dtree, train_data))
-    print("Accuracy (testing data)", dtree_score(dtree, test_data))
-    print("Accuracy (validation data)", dtree_score(dtree, valid_data))
+    print("Accuracy (training data)", dtree.score(train_data))
+    print("Accuracy (testing data)", dtree.score(test_data))
+    print("Accuracy (validation data)", dtree.score(valid_data))
 
 
 def part_d():
