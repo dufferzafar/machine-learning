@@ -5,12 +5,13 @@ from common import accuracy
 
 class Node():
 
-    """Nodes of the tree."""
+    """Node of a tree."""
 
-    def __init__(self, cls, attr_idx=None, children={}):
+    def __init__(self, cls, parent=None, attr_idx=None, children={}):
 
         # Majority class is stored at all nodes - leaf / internal
         self.cls = cls
+        self.parent = parent
 
         # While these are only stored on Internal (decision nodes)
         self.attr_idx = attr_idx  # Index of the attribute to make decision on
@@ -43,7 +44,7 @@ class DecisionTree():
         self.root = self._build_tree(data)
 
     @staticmethod
-    def _build_tree(data):
+    def _build_tree(data, parent=None):
         """
         Build a decision tree using ID3 / information gain.
 
@@ -64,14 +65,24 @@ class DecisionTree():
         # Find the attribute that maximizes the gain
         gain, attr_idx = DecisionTree._best_attribute(data)
 
+        # Split if gain is positive
         if gain > 0:
-            # Split if gain is positive
-            children = {v: DecisionTree._build_tree(data[p])
-                        for v, p in partition(data[:, attr_idx]).items()}
 
-            return Node(majority_class, attr_idx, children)
+            this_node = Node(
+                parent=parent,
+                cls=majority_class,
+                attr_idx=attr_idx
+            )
+
+            this_node.children = {
+                v: DecisionTree._build_tree(data[p], parent=this_node)
+                for v, p in partition(data[:, attr_idx]).items()
+            }
+
+            return this_node
+
+        # Otherwise create a leaf node that predicts the majority class
         else:
-            # Otherwise create a leaf node that predicts the majority class
             return Node(majority_class)
 
     @staticmethod
