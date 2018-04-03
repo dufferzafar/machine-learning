@@ -8,15 +8,18 @@ Part D: sklearn's Decision Tree
 Part E: sklearn's Random Forest
 """
 
-import numpy as np
 from matplotlib import pyplot as plt
 
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import ParameterGrid
 from sklearn.ensemble import RandomForestClassifier
 
-from read_data import preprocess
+from tqdm import tqdm
 
+# ~/.python/timtim
+from timtim import Timer as TimeIt
+
+from read_data import preprocess
 from decision_tree import DecisionTree
 
 # TODO: Move this data reading into a function
@@ -25,17 +28,57 @@ test_data = preprocess("data/test.csv")
 valid_data = preprocess("data/valid.csv")
 
 
+def plot_accuracies(dtree, step=100):
+    accuracies = {"train": [], "test": [], "valid": []}
+
+    nodes = list(dtree.nodes())
+    nodes.reverse()
+
+    nodecounts = []
+    totalnodes = len(nodes)
+
+    for i in tqdm(range(0, len(nodes), step)):
+
+        for node in nodes[i:i + step]:
+            dtree._remove_node(node)
+
+        totalnodes -= step
+        nodecounts.append(totalnodes)
+
+        accuracies["train"].append(dtree.score(train_data))
+        accuracies["test"].append(dtree.score(test_data))
+        accuracies["valid"].append(dtree.score(valid_data))
+
+    plt.plot(nodecounts, accuracies["train"],
+             linestyle='-', marker='o')
+    plt.plot(nodecounts, accuracies["test"],
+             linestyle='-', marker='o')
+    plt.plot(nodecounts, accuracies["valid"],
+             linestyle='-', marker='o')
+
+    plt.legend(['Train', 'Test', 'Validation'], loc='lower right')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Number of nodes')
+    plt.show()
+
+
 def part_a():
 
-    print("Building Decision Tree (on training data)")
-    dtree = DecisionTree(train_data)
+    with TimeIt(prefix="Building Decision Tree"):
+        dtree = DecisionTree(train_data)
 
+    print()
     print("Tree height", dtree.height())
     print("Tree node count", dtree.node_count())
 
+    print()
     print("Accuracy (training data)", dtree.score(train_data))
     print("Accuracy (testing data)", dtree.score(test_data))
     print("Accuracy (validation data)", dtree.score(valid_data))
+
+    print()
+    print("Now plotting accuracy for varying number of nodes")
+    plot_accuracies(dtree)
 
 
 def part_d():
