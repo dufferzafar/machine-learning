@@ -1,3 +1,5 @@
+from collections import deque
+
 import numpy as np
 
 from common import accuracy
@@ -172,3 +174,16 @@ class DecisionTree():
         for v, n in parent.children.items():
             if n == node:
                 del parent.children[v]
+    # NOTE: There is a discrepancy in how the tree was built
+    # and how it is being iterated upon; fix?
+    # TODO: Use DFS instead of BFS?
+    def nodes(self):
+        """Iterate over all nodes in the tree in BFS order."""
+
+        q = deque([self.root])
+
+        while q:
+            node = q.popleft()
+            q.extend(node.children.values())
+
+            yield node
