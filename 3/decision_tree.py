@@ -157,3 +157,18 @@ class DecisionTree():
             return 1
         else:
             return 1 + sum(map(DecisionTree._node_count, dtree.children.values()))
+
+    @staticmethod
+    def _remove_node_from_tree(node):
+        parent = node.parent
+
+        # Root can not be removed
+        if parent is None:
+            return
+
+        # NOTE: Because we are storing children in a dictionary,
+        # removal is costlier than it could be
+        # TODO: Use lists for children?
+        for v, n in parent.children.items():
+            if n == node:
+                del parent.children[v]
