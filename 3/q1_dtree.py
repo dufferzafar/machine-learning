@@ -11,8 +11,8 @@ Part E: sklearn's Random Forest
 from matplotlib import pyplot as plt
 
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import ParameterGrid
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import ParameterGrid
 
 from tqdm import tqdm
 
@@ -129,6 +129,12 @@ def part_d():
 
 
 def part_e():
+
+    # Run with default parameters
+    clf = RandomForestClassifier(criterion='entropy', random_state=0)
+    clf.fit(train_data[:, 1:], train_data[:, 0])
+    print("Random forest accuracy (default parameters)",
+          clf.score(valid_data[:, 1:], valid_data[:, 0]))
 
     parameters = {
         'n_estimators': range(5, 25),
