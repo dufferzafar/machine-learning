@@ -198,3 +198,31 @@ class DecisionTree():
             q.extend(node.children.values())
 
             yield node
+
+    def prune(self):
+        """Use reduced error pruning after the tree has been fully built."""
+
+        nodes = list(self.nodes())
+        nodes.reverse()
+
+        # Iteate over all nodes and decide whether to keep this or not.
+        for node in nodes:
+
+            # No point in checking a leaf node
+            if not node.children:
+                continue
+
+            # Using majority class, this fraction of data is incorrectly classified
+            node_err_rate = min(node.nsamples) / sum(node.nsamples)
+
+            children_err_rate = sum(
+                min(child.nsamples) / sum(node.nsamples)
+                for child in node.children.values()
+            )
+
+            # Creating children is increasing the error
+            if children_err_rate > node_err_rate:
+
+                # Remove the subtree rooted at this node
+                # and make this node a leaf
+                node.children = {}
