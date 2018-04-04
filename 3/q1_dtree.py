@@ -28,7 +28,7 @@ test_data = preprocess("data/test.csv")
 valid_data = preprocess("data/valid.csv")
 
 
-def plot_accuracies(dtree, step=100):
+def plot_accuracies(dtree, fn="plot"):
     accuracies = {"train": [], "test": [], "valid": []}
 
     nodes = list(dtree.nodes())
@@ -36,6 +36,8 @@ def plot_accuracies(dtree, step=100):
 
     nodecounts = []
     totalnodes = len(nodes)
+
+    step = 100
 
     for i in range(0, len(nodes), step):
 
@@ -56,7 +58,9 @@ def plot_accuracies(dtree, step=100):
     plt.legend(['Train', 'Test', 'Validation'], loc='lower right')
     plt.ylabel('Accuracy')
     plt.xlabel('Number of nodes')
-    plt.show()
+
+    plt.savefig(fn + ".png")
+    plt.close()
 
 
 def part_a():
@@ -75,7 +79,7 @@ def part_a():
 
     print()
     print("Calculating accuracy at different number of nodes")
-    plot_accuracies(dtree)
+    plot_accuracies(dtree, "part_a")
 
 
 def part_b():
@@ -85,6 +89,10 @@ def part_b():
 
     print()
     print("Pruning the tree")
+
+    # TODO: This pruning is happening for training data
+    # Somehow fit on validation data and then prune !?
+    # Or update the pruning itself to take data !?
     dtree.prune()
 
     print()
@@ -98,7 +106,7 @@ def part_b():
 
     print()
     print("Calculating accuracy at different number of nodes")
-    plot_accuracies(dtree)
+    plot_accuracies(dtree, fn="part_b")
 
 
 def part_d():
