@@ -37,7 +37,7 @@ def plot_accuracies(dtree, step=100):
     nodecounts = []
     totalnodes = len(nodes)
 
-    for i in tqdm(range(0, len(nodes), step)):
+    for i in range(0, len(nodes), step):
 
         for node in nodes[i:i + step]:
             dtree._remove_node(node)
@@ -49,12 +49,9 @@ def plot_accuracies(dtree, step=100):
         accuracies["test"].append(dtree.score(test_data))
         accuracies["valid"].append(dtree.score(valid_data))
 
-    plt.plot(nodecounts, accuracies["train"],
-             linestyle='-', marker='o')
-    plt.plot(nodecounts, accuracies["test"],
-             linestyle='-', marker='o')
-    plt.plot(nodecounts, accuracies["valid"],
-             linestyle='-', marker='o')
+    plt.plot(nodecounts, accuracies["train"])  # linestyle='-', marker='o')
+    plt.plot(nodecounts, accuracies["test"])  # linestyle='-', marker='o')
+    plt.plot(nodecounts, accuracies["valid"])  # linestyle='-', marker='o')
 
     plt.legend(['Train', 'Test', 'Validation'], loc='lower right')
     plt.ylabel('Accuracy')
@@ -77,7 +74,30 @@ def part_a():
     print("Accuracy (validation data)", dtree.score(valid_data))
 
     print()
-    print("Now plotting accuracy for varying number of nodes")
+    print("Calculating accuracy at different number of nodes")
+    plot_accuracies(dtree)
+
+
+def part_b():
+
+    with TimeIt(prefix="Building Decision Tree"):
+        dtree = DecisionTree(train_data)
+
+    print()
+    print("Pruning the tree")
+    dtree.prune()
+
+    print()
+    print("Tree height", dtree.height())
+    print("Tree node count", dtree.node_count())
+
+    print()
+    print("Accuracy (training data)", dtree.score(train_data))
+    print("Accuracy (testing data)", dtree.score(test_data))
+    print("Accuracy (validation data)", dtree.score(valid_data))
+
+    print()
+    print("Calculating accuracy at different number of nodes")
     plot_accuracies(dtree)
 
 
