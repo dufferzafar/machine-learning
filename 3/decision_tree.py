@@ -9,13 +9,19 @@ class Node():
 
     """Node of a tree."""
 
-    def __init__(self, parent, cls, attr_idx=None, children={}):
+    def __init__(self, parent, nsamples, attr_idx=None, children={}):
 
-        # Majority class is stored at all nodes - leaf / internal
+        # These stored at all nodes - leaf / internal
         self.parent = parent
-        self.cls = cls
 
-        # While these are only stored on Internal (decision nodes)
+        # No. of samples of different classes coming at this node
+        self.nsamples = nsamples
+
+        # Majority class of the data coming in at this node
+        # (this is used to make predictions)
+        self.cls = nsamples.argmax()
+
+        # While these are only stored on internal (decision nodes)
         self.attr_idx = attr_idx  # Index of the attribute to make decision on
         self.children = children  # A dictionary of attribute values and child nodes
 
@@ -64,27 +70,21 @@ class DecisionTree():
         """
 
         Y = data[:, 0]
-        majority_class = np.bincount(Y).argmax()
+        nsamples = np.bincount(Y)
 
         # if data is "pure" i.e has examples of a single class
         # then return a leaf node predicting that class
         if len(set(Y)) <= 1:
-            return Node(parent, majority_class)
-
-        # if all features finished?
-        # TODO: Will info gain handle attribute repetitions?
+            return Node(parent, nsamples)
 
         # Find the attribute that maximizes the gain
         gain, attr_idx = DecisionTree._best_attribute(data)
 
         # Split if gain is positive
+        # TODO: Remove this conidition? since this is resulting in pre-pruned trees?
         if gain > 0:
 
-            this_node = Node(
-                parent=parent,
-                cls=majority_class,
-                attr_idx=attr_idx
-            )
+            this_node = Node(parent, nsamples, attr_idx)
 
             this_node.children = {
                 v: DecisionTree._build_tree(data[p], parent=this_node)
@@ -95,7 +95,7 @@ class DecisionTree():
 
         # Otherwise create a leaf node that predicts the majority class
         else:
-            return Node(parent, majority_class)
+            return Node(parent, nsamples)
 
     @staticmethod
     def _best_attribute(data):
