@@ -18,6 +18,9 @@
 			],
 			"folder_exclude_patterns":
 			[
+				"**/models",
+				"**/data",
+				"**/libsvm",
 				"_Help/**",
 				"env",
 			],
@@ -29,6 +32,7 @@
 		"pep257_ignore":
 		[
 			"D100",
+			"D105",
 			"D200",
 			"D208",
 			"D209",

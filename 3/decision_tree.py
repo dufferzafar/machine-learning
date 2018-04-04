@@ -37,10 +37,7 @@ def entropy(Y):
     """
     Calculate entropy from class labels.
     """
-
-    _, counts = np.unique(Y, return_counts=True)
-    probabilities = counts.astype('float') / len(Y)
-
+    probabilities = np.bincount(Y) / len(Y)
     return -1 * sum(p * np.log2(p) for p in probabilities if p)
 
 
