@@ -89,15 +89,9 @@ class NeuralNetwork():
         # Wikipedia calls these Net_j and O_j
         inputs, outputs = self.feedforward(x, return_lists=True)
 
-        # Compute updates at the last layer
-        # NOTE: This will change if the cost function changes
-        # delta = (outputs[-1] - y) * self.activation_func.df(outputs[-1])
-        # dw[-1] = delta @ outputs[-2].T
-        # db[-1] = delta
-
         # Create empty lists to hold gradient updates
-        dw = [0] * self.nlayers
-        db = [0] * self.nlayers
+        dw = [0] * (self.nlayers - 1)
+        db = [0] * (self.nlayers - 1)
 
         # Compute the updates for other layers - moving backwards
         for L in range(1, self.nlayers):
