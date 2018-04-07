@@ -1,1 +1,4 @@
 data/
+
+# Various graph outputs
+*.png
