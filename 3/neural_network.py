@@ -111,7 +111,7 @@ class NeuralNetwork():
 
         return dw, db
 
-    def train(self, X, y, eta=0.05, batch_sz=100, epochs=10):
+    def train(self, X, y, eta=0.05, batch_size=100, epochs=10):
         """
         Train the network using mini-batch gradient descent.
         """
@@ -119,30 +119,28 @@ class NeuralNetwork():
         # TODO: Convergence using validation set accuracy
 
         # Encode data to work with the net
-        X = [x.reshape(-1, 1) for x in X]
-        y = [one_hot_encode(c, 2) for c in y]
+        X = np.array([x.reshape(-1, 1) for x in X])
+        y = np.array([one_hot_encode(c, 2) for c in y])
 
-        m, n = X.shape
+        idx = np.arange(len(X))
 
         # Go over the data these many times
-        for _ in range(epochs):
+        for _ in tqdm(range(epochs)):
+
+            np.random.shuffle(idx)
 
             # Iterate over batches of data
-            for i in range(0, m, batch_sz):
-                Xb, yb = X[i:i + batch_sz], y[i:i + batch_sz]
+            for i in range(0, len(X), batch_size):
+
+                batch = idx[i:i + batch_size]
+                Xb, yb = X[batch], y[batch]
 
                 gradients = [self.backprop(x, y) for x, y in zip(Xb, yb)]
-                dw = [w for w, _ in gradients]
-                db = [b for _, b in gradients]
-
-                # Sum the gradients properly
-                # dw = []
-                # db = []
-
-                # assert dw.shape == self.weights.shape
+                dw = list(sum(np.array(w) for w, _ in gradients))
+                db = list(sum(np.array(b) for _, b in gradients))
 
                 # Update the parameters of each layer
-                for l in range(self.nlayers):
+                for l in range(self.nlayers - 1):
                     self.weights[l] -= (eta / len(Xb)) * dw[l]
                     self.biases[l] -= (eta / len(Xb)) * db[l]
 
