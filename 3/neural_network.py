@@ -57,7 +57,7 @@ class NeuralNetwork():
         # Parameters are initialzed by random values
         for j, k in zip(topo[:-1], topo[1:]):
             self.weights.append(np.random.randn(k, j))
-            self.biases.append(np.random.randn(k))
+            self.biases.append(np.random.randn(k, 1))
 
     def feedforward(self, a, return_lists=False):
 
@@ -68,7 +68,7 @@ class NeuralNetwork():
 
         # Feed the data forward
         for w, b in zip(self.weights, self.biases):
-            z = w @ a.T + b
+            z = w @ a + b
             a = self.activation_func.f(z)
 
             inputs.append(z)
@@ -109,7 +109,7 @@ class NeuralNetwork():
             if -L == -1:
                 delta = del_out * (outputs[-1] - y)
             else:
-                delta = del_out * (delta @ self.weights[-L + 1])
+                delta = del_out * (self.weights[-L + 1].T @ delta)
 
             # Gradient updates at this layer
             dw[-L] = delta @ outputs[-L - 1].T
@@ -124,7 +124,8 @@ class NeuralNetwork():
 
         # TODO: Convergence using validation set accuracy
 
-        # Encode classes to work with
+        # Encode data to work with the net
+        X = [x.reshape(-1, 1) for x in X]
         y = [one_hot_encode(c, 2) for c in y]
 
         m, n = X.shape
