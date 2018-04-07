@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_decision_boundary(model, X, y, title):
+def plot_decision_boundary(model, X, y, title, fn=""):
     """
     Given a model(a function) and a set of points(X), corresponding labels(y), scatter the points in X with color coding
     according to y. Also use the model to predict the label at grid points to get the region for each label, and thus the
@@ -21,11 +21,11 @@ def plot_decision_boundary(model, X, y, title):
     outputs(None)
     """
     # Set min and max values and give it some padding
-    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
-    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    x0_min, x0_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    x1_min, x1_max = X[:, 1].min() - 1, X[:, 1].max() + 1
     h = 0.01
     # Generate a grid of points with distance h between them
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    xx, yy = np.meshgrid(np.arange(x0_min, x0_max, h), np.arange(x1_min, x1_max, h))
 
     # Predict the function value for the whole grid
     Z = model(np.c_[xx.ravel(), yy.ravel()])
@@ -38,5 +38,9 @@ def plot_decision_boundary(model, X, y, title):
     plt.ylabel('x2')
     plt.title(title)
 
-    plt.savefig(title + ".png")
+    if fn:
+        plt.savefig(fn + ".png")
+    else:
+        plt.savefig(title + ".png")
+
     plt.close()

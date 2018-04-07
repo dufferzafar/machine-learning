@@ -4,8 +4,10 @@ A neural network implementation trained using mini-batch gradient descent.
 https://en.wikipedia.org/wiki/Backpropagation
 """
 
-
 import numpy as np
+
+from tqdm import tqdm
+
 from common import accuracy
 
 
@@ -28,7 +30,7 @@ class Sigmoid:
 
     @staticmethod
     def f(x):
-        return 1 / (1 + np.exp(-x))
+        return 1.0 / (1.0 + np.exp(-x))
 
     @staticmethod
     def df(x):
@@ -41,7 +43,7 @@ class Sigmoid:
 class NeuralNetwork():
 
     def __init__(self,
-                 topo=[2, 3, 2],
+                 topo=[2, 5, 2],
                  activation_func=Sigmoid):
 
         # Can be Sigmoid or ReLU
