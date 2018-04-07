@@ -49,6 +49,7 @@ class NeuralNetwork():
         # Can be Sigmoid or ReLU
         self.activation_func = activation_func
 
+        self.topo = topo
         self.nlayers = len(topo)
 
         # These are a neural net's parameters
@@ -122,7 +123,9 @@ class NeuralNetwork():
 
         # Encode data to work with the net
         X = np.array([x.reshape(-1, 1) for x in X])
-        y = np.array([one_hot_encode(c, 2) for c in y])
+
+        if self.topo[-1] != 1:
+            y = np.array([one_hot_encode(c, self.topo[-1]) for c in y])
 
         idx = np.arange(len(X))
 
@@ -152,4 +155,9 @@ class NeuralNetwork():
 
     def predict(self, X):
         """Predict classes for data."""
-        return [self.feedforward(x).argmax() for x in X]
+
+        # If there is a single output unit then use thresholding
+        if self.topo[-1] == 1:
+            return np.array([int(self.feedforward(x.reshape(-1, 1)) > 0.5) for x in X])
+        else:
+            return np.array([self.feedforward(x.reshape(-1, 1)).argmax() for x in X])
