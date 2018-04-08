@@ -2,6 +2,8 @@ from collections import deque
 
 import numpy as np
 
+from tqdm import tqdm
+
 from common import accuracy
 
 
@@ -78,7 +80,7 @@ class DecisionTree():
         gain, attr_idx = DecisionTree._best_attribute(data)
 
         # Split if gain is positive
-        # TODO: Remove this conidition? since this is resulting in pre-pruned trees?
+        # Does this is result in pre-pruned trees?
         if gain > 0:
 
             this_node = Node(parent, nsamples, attr_idx)
@@ -177,13 +179,12 @@ class DecisionTree():
 
         # NOTE: Because we are storing children in a dictionary,
         # removal is costlier than it could be
-        # TODO: Use lists for children?
+
+        # Use lists for children?
         for v, n in parent.children.items():
             if n == node:
                 del parent.children[v]
-                break
-
-        return parent
+                return v, parent
 
     # NOTE: There is a discrepancy in how the tree was built
     # and how it is being iterated upon; fix?
@@ -199,8 +200,13 @@ class DecisionTree():
 
             yield node
 
-    def prune(self):
-        """Use reduced error pruning after the tree has been fully built."""
+    # TODO: Better description; alternative?
+    def update_nsamples(dtree, data):
+        """Update node.nsamples according to data."""
+        pass
+
+    def prune_single_pass(self, valid_data):
+        """Prune by making a single pass over data."""
 
         nodes = list(self.nodes())
         nodes.reverse()
@@ -226,3 +232,31 @@ class DecisionTree():
                 # Remove the subtree rooted at this node
                 # and make this node a leaf
                 node.children = {}
+
+    def prune_brute(self, valid_data):
+        """Prune by Brute-force - calculating accuracy before and after removing a node."""
+
+        nodes = list(self.nodes())
+        nodes.reverse()
+
+        # Iteate over all nodes and decide whether to keep this or not.
+        for node in tqdm(nodes, ncols=80):
+
+            # No point in checking a leaf node
+            if not node.children:
+                continue
+
+            # Accuracy before removing the node
+            val_acc_before = self.score(valid_data)
+
+            # Remove the node
+            # self._remove_node(node)
+            _children_backup = node.children
+            node.children = {}
+
+            # Accuracy before removing the node
+            val_acc_after = self.score(valid_data)
+
+            # Add the node back if
+            if val_acc_after < val_acc_before:
+                node.children = _children_backup
