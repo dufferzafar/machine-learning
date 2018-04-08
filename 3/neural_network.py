@@ -59,7 +59,7 @@ class NeuralNetwork():
 
         # Parameters are initialzed by random values
         for j, k in zip(topo[:-1], topo[1:]):
-            self.weights.append(np.random.randn(k, j))
+            self.weights.append(np.random.randn(k, j) / np.sqrt(j))
             self.biases.append(np.random.randn(k, 1))
 
     def feedforward(self, a, return_lists=False):
