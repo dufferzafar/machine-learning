@@ -38,6 +38,30 @@ class Sigmoid:
 
 
 # TODO: Make ReLU activation function
+class ReLU:
+
+    """ReLU function."""
+
+    @staticmethod
+    def f(x):
+        return max(0.0, x)
+
+    @staticmethod
+    def df(x):
+        return 0 if x < 0 else 1
+
+
+class QuadCost:
+
+    """Quadratic Cost."""
+
+    @staticmethod
+    def f(a, y):
+        return 0.5 * np.linalg.norm(a - y) ** 2
+
+    @staticmethod
+    def df(a, y):
+        return (a - y) * Sigmoid.df(a)
 
 
 class NeuralNetwork():
@@ -124,13 +148,14 @@ class NeuralNetwork():
         # Encode data to work with the net
         X = np.array([x.reshape(-1, 1) for x in X])
 
-        if self.topo[-1] != 1:
+        # If last layer has more than 1 layer, then one-hot-encode the target values
+        if self.topo[-1] > 1:
             y = np.array([one_hot_encode(c, self.topo[-1]) for c in y])
 
         idx = np.arange(len(X))
 
         # Go over the data these many times
-        for _ in tqdm(range(epochs)):
+        for _ in tqdm(range(epochs), ncols=80, ascii=True):
 
             np.random.shuffle(idx)
 
