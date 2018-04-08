@@ -4,9 +4,9 @@ A neural network implementation trained using mini-batch gradient descent.
 https://en.wikipedia.org/wiki/Backpropagation
 """
 
-import numpy as np
+import sys
 
-from tqdm import tqdm
+import numpy as np
 
 from common import accuracy
 
@@ -44,7 +44,7 @@ class ReLU:
 
     @staticmethod
     def f(x):
-        return max(0.0, x)
+        return np.maximum(0.0, x)
 
     @staticmethod
     def df(x):
@@ -77,7 +77,7 @@ class NeuralNetwork():
         self.nlayers = len(topo)
 
         # These are a neural net's parameters
-        # TODO: Don't maintain weights / biases separately?
+        # Look into how we could maintain weights & biases in single structure
         self.weights = []
         self.biases = []
 
@@ -143,7 +143,7 @@ class NeuralNetwork():
         Train the network using mini-batch gradient descent.
         """
 
-        # TODO: Convergence using validation set accuracy
+        # TODO: Stopping criteria based on validation set accuracy
 
         # Encode data to work with the net
         X = np.array([x.reshape(-1, 1) for x in X])
@@ -154,8 +154,12 @@ class NeuralNetwork():
 
         idx = np.arange(len(X))
 
+        sys.stdout.write("\n")
+
         # Go over the data these many times
-        for _ in tqdm(range(epochs), ncols=80, ascii=True):
+        for epoch in range(epochs):
+
+            sys.stdout.write("\rEpoch: %d / %d; " % (epoch + 1, epochs))
 
             np.random.shuffle(idx)
 
@@ -173,6 +177,13 @@ class NeuralNetwork():
                 for l in range(self.nlayers - 1):
                     self.weights[l] -= (eta / len(Xb)) * dw[l]
                     self.biases[l] -= (eta / len(Xb)) * db[l]
+
+            sys.stdout.write("Error: %.5f" % self.total_cost(X, y))
+
+        sys.stdout.write("\n\n")
+
+    def total_cost(self, X, Y):
+        return sum(QuadCost.f(self.feedforward(x), y) for x, y in zip(X, Y)) / len(X)
 
     def score(self, X, y):
         """Calculate accuracy of this net on data."""
