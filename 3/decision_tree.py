@@ -240,7 +240,7 @@ class DecisionTree():
         nodes.reverse()
 
         # Iteate over all nodes and decide whether to keep this or not.
-        for node in tqdm(nodes, ncols=80):
+        for node in tqdm(nodes, ncols=80, ascii=True):
 
             # No point in checking a leaf node
             if not node.children:
