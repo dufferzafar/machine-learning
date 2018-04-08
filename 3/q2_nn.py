@@ -82,7 +82,7 @@ def part_b_2():
 
     nn = NeuralNetwork(topo=[2, 5, 1])
 
-    nn.train(toy_trainX, toy_trainY, epochs=5000, eta=1)
+    nn.train(toy_trainX, toy_trainY, epochs=5000, eta=4.5)
 
     print("Training Accuracy", 100 * nn.score(toy_trainX, toy_trainY))
     print("Testing Accuracy", 100 * nn.score(toy_testX, toy_testY))
@@ -135,9 +135,9 @@ def part_b_4():
     print("Testing Accuracy", 100 * nn.score(toy_testX, toy_testY))
 
     plot_decision_boundary(nn.predict, toy_trainX, toy_trainY,
-                           "Toy Training Data", "b1_train_5_5")
+                           "Toy Training Data", "b4_train_5_5")
     plot_decision_boundary(nn.predict, toy_testX, toy_testY,
-                           "Toy Testing Data", "b1_test_5_5")
+                           "Toy Testing Data", "b4_test_5_5")
 
 
 def part_c_1():
@@ -169,19 +169,41 @@ def part_c_2():
     trainX, trainY = read_mnist_data("data/MNIST_train")
     testX, testY = read_mnist_data("data/MNIST_test")
 
-    # TODO: Adpative eta
     # TODO: Stopping criteria based on change in value of error function
 
     print("Architecture: 784 - 100 - 10")
     nn = NeuralNetwork(topo=[784, 100, 10])
-    nn.train(trainX, trainY, epochs=10, eta=3)
+    nn.train(trainX, trainY, epochs=100, eta=0)
+
+    print("Training Accuracy", 100 * nn.score(trainX, trainY))
+    print("Testing Accuracy", 100 * nn.score(testX, testY))
+
+
+def part_c_3():
+
+    print()
+    print("Part C 3")
+
+    print("Reading MNIST Data")
+    trainX, trainY = read_mnist_data("data/MNIST_train")
+    testX, testY = read_mnist_data("data/MNIST_test")
+
+    # TODO: ReLU at hidden layers, Sigmoid at output
+
+    nn = NeuralNetwork(topo=[784, 100, 10])
+    nn.train(trainX, trainY, epochs=10, eta=30, user_relu=True)
 
     print("Training Accuracy", 100 * nn.score(trainX, trainY))
     print("Testing Accuracy", 100 * nn.score(testX, testY))
 
 
 if __name__ == '__main__':
-    part_b_1()
+    # part_b_1()
     # part_b_2()
     # part_b_3()
     # part_b_4()
+
+    # part_c_1()
+    part_c_2()
+
+    # part_c_3()
