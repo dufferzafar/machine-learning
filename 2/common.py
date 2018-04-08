@@ -16,7 +16,7 @@ def make_confusion(actual, predicted, dict_=False):
 
     assert len(actual) == len(predicted)
 
-    # TODO: Not proud of this code - Make Pythonic!
+    # Not proud of this code - Make Pythonic!
 
     # Using a dict ensures that classes can be anything
     cm = {
@@ -39,7 +39,7 @@ def make_confusion(actual, predicted, dict_=False):
         return cm
 
     # Now convert into a matrix form
-    # TODO: See if seaborn can take dictionaries as input
+    # See if seaborn can take dictionaries as input
     cmm = []
     for a in sorted(cm):
         cmm.append([cm[a][p] for p in sorted(cm[a])])

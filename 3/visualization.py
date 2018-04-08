@@ -39,7 +39,7 @@ def plot_decision_boundary(model, X, y, title, fn=""):
     plt.title(title)
 
     if fn:
-        plt.savefig(fn + ".png")
+        plt.savefig("output/" + fn + ".png")
     else:
         plt.savefig(title + ".png")
 

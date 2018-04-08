@@ -11,7 +11,7 @@ import matplotlib.lines as mlines
 
 from common import normalize, save
 
-# TODO: Use read_data once normalize is fixed
+# Use read_data once normalize is fixed?
 xf, yf = "data/q4x.dat", "data/q4y.dat"
 X = np.loadtxt(xf)
 m, n = X.shape

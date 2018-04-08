@@ -79,7 +79,7 @@ def pegasos(X, y, lmbd=1):
     C = 1.0
 
     # Initial guess of W
-    # TODO: What if this gets changed?
+    # What if this gets changed?
     W = np.zeros(n)
     b = 0
 
@@ -99,7 +99,7 @@ def pegasos(X, y, lmbd=1):
         Xb, yb = X[batch], y[batch]
 
         # Find examples in this batch for which T < 1
-        # TODO: Are these points the "support vectors" ?
+        # Are these points the "support vectors" ?
         T = yb * ((W @ Xb.T) + b)
         Tl1 = np.where(T < 1)
 
@@ -224,7 +224,7 @@ def part_c():
     problem = svm_problem(train_y, train_x)
     params = svm_parameter("-q -s 0 -c 1")
 
-    # TODO: Timing calculations
+    # Timing calculations
     print("Training SVM (linear kernel)")
     params.parse_options("-t 0")
     model = svm_train(problem, params)

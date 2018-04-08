@@ -1,6 +1,6 @@
 #!/home/dufferzafar/.apps/anaconda3/bin/python
 
-# TODO: Fix this python
+# Fix this python
 # !/usr/bin/env python3
 
 """

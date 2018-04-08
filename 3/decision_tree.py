@@ -145,7 +145,7 @@ class DecisionTree():
     def score(self, data):
         """Find accuracy of dtree over data."""
         predictions = [self._predict(self.root, x) for x in data]
-        return accuracy(data[:, 0], predictions)
+        return 100 * accuracy(data[:, 0], predictions)
 
     def height(self):
         return self._height(self.root)

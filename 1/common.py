@@ -14,7 +14,7 @@ def save(plt, name):
 def normalize(x):
     """Normalize a column of a numpy array."""
 
-    # TODO: Take in a matrix and normalize all its columns
+    # Take in a matrix and normalize all its columns
     # axis param on mean
 
     mu = np.mean(x)

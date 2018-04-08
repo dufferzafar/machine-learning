@@ -29,9 +29,7 @@ def clean_line(l):
 
 
 def read_file(fn, clean=lambda l: l.strip()):
-    # print("reading ", fn)
     with open(DATA + fn) as f:
-        # NOTE: Could remove the list here!
         return list(map(clean, f.readlines()))
 
 

@@ -8,7 +8,7 @@ import matplotlib.patches as mpatches
 from common import normalize, save
 
 
-# TODO: Use read_data once normalize is fixed
+# Use read_data once normalize is fixed?
 xf, yf = "data/logisticX.csv", "data/logisticY.csv"
 X = np.loadtxt(xf, delimiter=',')
 m, n = X.shape
@@ -83,7 +83,7 @@ def part_a(theta=np.zeros(n + 1)):
 
 def part_b(theta):
 
-    # TODO: Use vectorization to remove this and the corresponding map
+    # Use vectorization to remove this and the corresponding map?
     def find_x2(x, t=theta):
         """
         Find x2 from equation of the line.
