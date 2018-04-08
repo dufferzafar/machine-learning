@@ -147,20 +147,29 @@ class NeuralNetwork():
 
         # Encode data to work with the net
         X = np.array([x.reshape(-1, 1) for x in X])
+        idx = np.arange(len(X))
 
         # If last layer has more than 1 layer, then one-hot-encode the target values
         if self.topo[-1] > 1:
             y = np.array([one_hot_encode(c, self.topo[-1]) for c in y])
 
-        idx = np.arange(len(X))
-
         sys.stdout.write("\n")
 
+        # Assume infinite error at beginning
+        epoch = 0
+        error = np.inf
+
         # Go over the data these many times
-        for epoch in range(epochs):
+        while True:
 
-            sys.stdout.write("\rEpoch: %d / %d; " % (epoch + 1, epochs))
+            epoch += 1
+            sys.stdout.write("\rEpoch: %d / %d; " % (epoch, epochs))
 
+            # Adpative learning rate
+            if eta == 0:
+                eta = 1 / np.sqrt(epoch)
+
+            # shuffle the indices of the data at each epoch
             np.random.shuffle(idx)
 
             # Iterate over batches of data
@@ -178,11 +187,24 @@ class NeuralNetwork():
                     self.weights[l] -= (eta / len(Xb)) * dw[l]
                     self.biases[l] -= (eta / len(Xb)) * db[l]
 
-            sys.stdout.write("Error: %.5f" % self.total_cost(X, y))
+            error_old = error
+            error = self.total_error(X, y)
+
+            sys.stdout.write("Error: %.5f" % error)
+
+            # Early stopping
+            if abs(error_old - error) <= 10**-5:
+                print("\nStopping criteria reached")
+                break
+
+            elif epoch == epochs:
+                print("\nMaximum epochs reached")
+                break
 
         sys.stdout.write("\n\n")
 
-    def total_cost(self, X, Y):
+    def total_error(self, X, Y):
+        """Average error"""
         return sum(QuadCost.f(self.feedforward(x), y) for x, y in zip(X, Y)) / len(X)
 
     def score(self, X, y):
