@@ -17,7 +17,7 @@ class Node():
 
     """Node of a tree."""
 
-    def __init__(self, parent, nsamples, attr_idx=None, children={}):
+    def __init__(self, parent, nsamples, attr_idx=None, children=[]):
 
         # These stored at all nodes - leaf / internal
         self.parent = parent
@@ -29,9 +29,17 @@ class Node():
         # (this is used to make predictions)
         self.cls = nsamples.argmax()
 
-        # While these are only stored on internal (decision nodes)
-        self.attr_idx = attr_idx  # Index of the attribute to make decision on
-        self.children = children  # A dictionary of attribute values and child nodes
+        # These are only stored on internal (decision nodes)
+
+        # Index of the attribute that this nodes makes decision on
+        self.attr_idx = attr_idx
+
+        # Value of the splitting attribute
+        # This is stored at all nodes except root
+        self.split_value = None
+
+        # A dictionary of attribute values and child nodes
+        self.children = children
 
     def __repr__(self):
         if self.children:
@@ -66,8 +74,7 @@ class DecisionTree():
         else:
             self.root = self._build_tree(data)
 
-    @staticmethod
-    def _build_tree(data, parent=None):
+    def _build_tree(self, data, parent=None):
         """
         Build a decision tree using ID3 / information gain.
 
@@ -83,18 +90,21 @@ class DecisionTree():
             return Node(parent, nsamples)
 
         # Find the attribute that maximizes the gain
-        gain, attr_idx = DecisionTree._best_attribute(data)
+        gain, attr_idx = self._best_attribute(data)
 
         # Split if gain is positive
         # Does this is result in pre-pruned trees?
         if gain > 0:
 
-            this_node = Node(parent, nsamples, attr_idx)
+            this_node = Node(parent, nsamples, attr_idx, children=[])
 
-            this_node.children = {
-                v: DecisionTree._build_tree(data[p], parent=this_node)
-                for v, p in partition(data[:, attr_idx]).items()
-            }
+            # Create children of this node
+            for val, part in partition(data[:, attr_idx]).items():
+
+                child = self._build_tree(data[part], parent=this_node)
+                child.split_value = val
+
+                this_node.children.append(child)
 
             return this_node
 
@@ -102,8 +112,7 @@ class DecisionTree():
         else:
             return Node(parent, nsamples)
 
-    @staticmethod
-    def _best_attribute(data):
+    def _best_attribute(self, data):
         """
         Use information gain to decide which attribute to split on.
         """
@@ -135,20 +144,21 @@ class DecisionTree():
 
         return best_gain, best_attr
 
-    @staticmethod
-    def _predict(dtree, x):
+    def _predict(self, dtree, x):
         """Predict a single example using dtree."""
         if not dtree.children:
             return dtree.cls
         else:
-            child = dtree.children.get(x[dtree.attr_idx])
+            # Decide which child to go next to based on split values
+            children = {c.split_value: c for c in dtree.children}
+            child = children.get(x[dtree.attr_idx])
 
             # If there isn't a correct outgoing edge
             # then just return the majority class
             if not child:
                 return dtree.cls
             else:
-                return DecisionTree._predict(child, x)
+                return self._predict(child, x)
 
     def score(self, data):
         """Find accuracy of dtree over data."""
@@ -163,7 +173,7 @@ class DecisionTree():
         if not dtree.children:
             return 0
         else:
-            return 1 + max(map(DecisionTree._height, dtree.children.values()))
+            return 1 + max(map(DecisionTree._height, dtree.children))
 
     def node_count(self):
         return self._node_count(self.root)
@@ -173,7 +183,7 @@ class DecisionTree():
         if not dtree.children:
             return 1
         else:
-            return 1 + sum(map(DecisionTree._node_count, dtree.children.values()))
+            return 1 + sum(map(DecisionTree._node_count, dtree.children))
 
     @staticmethod
     def _remove_node(node):
@@ -183,14 +193,9 @@ class DecisionTree():
         if parent is None:
             return
 
-        # NOTE: Because we are storing children in a dictionary,
-        # removal is costlier than it could be
+        parent.children.remove(node)
 
-        # Use lists for children?
-        for v, n in parent.children.items():
-            if n == node:
-                del parent.children[v]
-                return v, parent
+        return parent
 
     # NOTE: There is a discrepancy in how the tree was built
     # and how it is being iterated upon; fix?
@@ -202,7 +207,7 @@ class DecisionTree():
 
         while q:
             node = q.popleft()
-            q.extend(node.children.values())
+            q.extend(node.children)
 
             yield node
 
@@ -224,7 +229,7 @@ class DecisionTree():
 
             children_err_rate = sum(
                 min(child.nsamples) / sum(node.nsamples)
-                for child in node.children.values()
+                for child in node.children
             )
 
             # Creating children is increasing the error
@@ -232,7 +237,7 @@ class DecisionTree():
 
                 # Remove the subtree rooted at this node
                 # and make this node a leaf
-                node.children = {}
+                node.children = []
 
     def prune_brute(self, valid_data):
         """Prune by Brute-force - calculating accuracy before and after removing a node."""
@@ -253,7 +258,7 @@ class DecisionTree():
             # Remove the node
             # self._remove_node(node)
             _children_backup = node.children
-            node.children = {}
+            node.children = []
 
             # Accuracy before removing the node
             val_acc_after = self.score(valid_data)
