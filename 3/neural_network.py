@@ -37,7 +37,6 @@ class Sigmoid:
         return x * (1 - x)
 
 
-# TODO: Make ReLU activation function
 class ReLU:
 
     """ReLU function."""

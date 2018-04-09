@@ -4,7 +4,13 @@ import numpy as np
 
 from tqdm import tqdm
 
+from read_data import ATTRIBUTES, ATTRIBUTES_NUMERICAL
 from common import accuracy
+
+
+def attribute_is_numerical(attr_idx):
+    """Check if an attribute is numerical in the Rich/Poor dataset."""
+    return ATTRIBUTES[attr_idx] in ATTRIBUTES_NUMERICAL
 
 
 class Node():

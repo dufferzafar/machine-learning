@@ -22,14 +22,12 @@ from timtim import Timer as TimeIt
 from read_data import preprocess
 from decision_tree import DecisionTree
 
-# TODO: Move this data reading into a function
-
 
 def read_rich_poor_data(binarize_median=True):
     return (
-        preprocess("data/train.csv"),
-        preprocess("data/test.csv"),
-        preprocess("data/valid.csv"),
+        preprocess("data/train.csv", binarize_median),
+        preprocess("data/test.csv", binarize_median),
+        preprocess("data/valid.csv", binarize_median),
     )
 
 
@@ -128,10 +126,35 @@ def part_b():
                          fn="output/dtree_part_b_after_pruning", step=50)
 
 
-def part_d():
+def part_c():
 
     print()
     print("Part C")
+
+    train_data, test_data, valid_data = read_rich_poor_data(binarize_median=False)
+
+    with TimeIt(prefix="Building Decision Tree"):
+        dtree = DecisionTree(train_data, binarize_median=False)
+
+    print()
+    print("Tree height", dtree.height())
+    print("Tree node count", dtree.node_count())
+
+    print()
+    print("Accuracy (training data)", dtree.score(train_data))
+    print("Accuracy (testing data)", dtree.score(test_data))
+    print("Accuracy (validation data)", dtree.score(valid_data))
+
+    print()
+    print("Calculating accuracy at different number of nodes")
+    plot_node_accuracies(dtree, train_data, test_data, valid_data,
+                         fn="output/dtree_part_b_after_pruning", step=50)
+
+
+def part_d():
+
+    print()
+    print("Part D")
 
     train_data, test_data, valid_data = read_rich_poor_data()
 
@@ -183,7 +206,7 @@ def part_d():
 def part_e():
 
     print()
-    print("Part D")
+    print("Part E")
 
     train_data, test_data, valid_data = read_rich_poor_data()
 
