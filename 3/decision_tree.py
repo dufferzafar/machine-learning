@@ -38,7 +38,10 @@ class Node():
         # This is stored at all nodes except root
         self.split_value = None
 
-        # A dictionary of attribute values and child nodes
+        # If split_attr is numerical, this will store the median value
+        self.median_value = None
+
+        # A list child nodes
         self.children = children
 
     def __repr__(self):
@@ -65,18 +68,23 @@ def entropy(Y):
     return -1 * sum(p * np.log2(p) for p in probabilities if p)
 
 
-def partition(Xa):
+def partition(Xa, binarize=False):
     """
     Partition a column based on the unique values it takes.
 
     { value: [indices where that value occurs in the column] }
     """
+    if binarize:
+        Xa = (Xa >= np.median(Xa)).astype(int)
     return {v: np.where(Xa == v)[0] for v in np.unique(Xa)}
 
 
 class DecisionTree():
 
-    def __init__(self, data=None):
+    def __init__(self, data=None, binarize_median=True):
+        self.binarize_median = binarize_median
+
+        # This allows us to create a tree with no data - for testing purposes
         if data is None:
             self.root = None
         else:
@@ -106,8 +114,14 @@ class DecisionTree():
 
             this_node = Node(parent, nsamples, split_attr, children=[])
 
+            # There's some code duplicacy here - _best_attribute has exact same line
+            binarize = not self.binarize_median and attribute_is_numerical(split_attr)
+
+            if binarize:
+                this_node.median_value = np.median(data[:, split_attr])
+
             # Create children of this node
-            for val, part in partition(data[:, split_attr]).items():
+            for val, part in partition(data[:, split_attr], binarize).items():
 
                 child = self._build_tree(data[part], parent=this_node)
                 child.split_value = val
@@ -129,15 +143,19 @@ class DecisionTree():
         best_gain = -1
         best_attr = -1
 
-        Y = data[:, 0]
-        X = data[:, 1:]
+        Y = data[:, 0]   # First column is label
+        X = data[:, 1:]  # All other columns are data
 
         # Iterate over each attribute
         for i, Xa in enumerate(X.T):
 
+            # If the data was not already binarized on medians
+            # It will contain numerical attributes that need to be binarized now
+            binarize = not self.binarize_median and attribute_is_numerical(i)
+
             # Create partitions over this attribute
             entropy_Y_Xa = sum((len(p) / len(Xa)) * entropy(Y[p])
-                               for p in partition(Xa).values())
+                               for p in partition(Xa, binarize).values())
 
             gain = entropy(Y) - entropy_Y_Xa
 
@@ -157,9 +175,16 @@ class DecisionTree():
         if not dtree.children:
             return dtree.cls
         else:
+            # Value of the record at attribute on which split will happen
+            x_val = x[dtree.split_attr]
+
+            # If this tree is splitting on a median value
+            if dtree.median_value is not None:
+                x_val = int(x_val >= dtree.median_value)
+
             # Decide which child to go next to based on split values
             children = {c.split_value: c for c in dtree.children}
-            child = children.get(x[dtree.split_attr])
+            child = children.get(x_val)
 
             # If there isn't a correct outgoing edge
             # then just return the majority class
