@@ -7,6 +7,9 @@ from tqdm import tqdm
 from read_data import ATTRIBUTES, ATTRIBUTES_NUMERICAL
 from common import accuracy
 
+# Global state for DecisionTree.count_attributes_on_path()
+MAX_ATTR_SPLIT = {attr: [] for attr in ATTRIBUTES_NUMERICAL}
+
 
 def attribute_is_numerical(split_attr):
     """Check if an attribute is numerical in the Rich/Poor dataset."""
@@ -310,3 +313,37 @@ class DecisionTree():
             # Add the node back if
             if val_acc_after < val_acc_before:
                 node.children = _children_backup
+
+    def count_attributes_on_path(self):
+        self._count_attributes_on_path(self.root, {})
+        return MAX_ATTR_SPLIT.items()
+
+    @staticmethod
+    def _count_attributes_on_path(dtree, path_attrs):
+        """
+        Count numerical attributes on a decision path along with corresponding thresholds.
+
+        Updates MAX_ATTR_SPLIT with values.
+        """
+
+        if not dtree.children:
+
+            # print(path_attrs)
+            for attr, medians in path_attrs.items():
+                if len(medians) > len(MAX_ATTR_SPLIT[attr]):
+                    MAX_ATTR_SPLIT[attr] = medians
+
+        # This is a numerical attribute
+        if dtree.median_value:
+            attr_name = ATTRIBUTES[dtree.split_attr]
+
+            # Copy the dict, for new path
+            path_attrs = dict(path_attrs)
+
+            if attr_name not in path_attrs:
+                path_attrs[attr_name] = [dtree.median_value]
+            else:
+                path_attrs[attr_name].append(dtree.median_value)
+
+        for child in dtree.children:
+            DecisionTree._count_attributes_on_path(child, path_attrs)

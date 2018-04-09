@@ -8,7 +8,8 @@ import csv
 import numpy as np
 
 # The possible attributes in the data with the prediction at index 0. Smaller names for brevity.
-attributes = [
+
+ATTRIBUTES = [
     "rich",    # Rich
     "age",     # Age, Numerical
     "wc",      # Work Class, Discrete
@@ -25,6 +26,8 @@ attributes = [
     "hpw",     # Hour per Week, Numerical
     "nc"       # Native Country, Discrete
 ]
+
+ATTRIBUTES_NUMERICAL = ["age", "fnlwgt", "edun", "capg", "capl", "hpw"]
 
 # Get the encoding of the csv file by replacing each categorical attribute value by its index.
 wc_l = "Private, Self-emp-not-inc, Self-emp-inc, Federal-gov, Local-gov, State-gov, Without-pay, Never-worked".split(", ")

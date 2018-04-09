@@ -146,9 +146,19 @@ def part_c():
     print("Accuracy (validation data)", dtree.score(valid_data))
 
     print()
+    print("Counting numerical attributes that are split multiple times.")
+    print()
+
+    for attr, thresholds in dtree.count_attributes_on_path():
+        if attr == "fnlwgt":
+            print(attr, " : ", len(thresholds))
+        elif len(thresholds) > 1:
+            print(attr, " : ", thresholds)
+
+    print()
     print("Calculating accuracy at different number of nodes")
     plot_node_accuracies(dtree, train_data, test_data, valid_data,
-                         fn="output/dtree_part_b_after_pruning", step=50)
+                         fn="output/dtree_part_c_dynamic_median", step=500)
 
 
 def part_d():
