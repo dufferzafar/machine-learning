@@ -8,16 +8,16 @@ from read_data import ATTRIBUTES, ATTRIBUTES_NUMERICAL
 from common import accuracy
 
 
-def attribute_is_numerical(attr_idx):
+def attribute_is_numerical(split_attr):
     """Check if an attribute is numerical in the Rich/Poor dataset."""
-    return ATTRIBUTES[attr_idx] in ATTRIBUTES_NUMERICAL
+    return ATTRIBUTES[split_attr] in ATTRIBUTES_NUMERICAL
 
 
 class Node():
 
     """Node of a tree."""
 
-    def __init__(self, parent, nsamples, attr_idx=None, children=[]):
+    def __init__(self, parent, nsamples, split_attr=None, children=[]):
 
         # These stored at all nodes - leaf / internal
         self.parent = parent
@@ -32,7 +32,7 @@ class Node():
         # These are only stored on internal (decision nodes)
 
         # Index of the attribute that this nodes makes decision on
-        self.attr_idx = attr_idx
+        self.split_attr = split_attr
 
         # Value of the splitting attribute
         # This is stored at all nodes except root
@@ -43,7 +43,7 @@ class Node():
 
     def __repr__(self):
         if self.children:
-            r = (self.cls, self.attr_idx, len(self.children))
+            r = (self.cls, self.split_attr, len(self.children))
             return "<Node: cls=%r, attr=%r, children=%r>" % r
         else:
             return "<Leaf: cls=%r>" % self.cls
@@ -90,16 +90,16 @@ class DecisionTree():
             return Node(parent, nsamples)
 
         # Find the attribute that maximizes the gain
-        gain, attr_idx = self._best_attribute(data)
+        gain, split_attr = self._best_attribute(data)
 
         # Split if gain is positive
         # Does this is result in pre-pruned trees?
         if gain > 0:
 
-            this_node = Node(parent, nsamples, attr_idx, children=[])
+            this_node = Node(parent, nsamples, split_attr, children=[])
 
             # Create children of this node
-            for val, part in partition(data[:, attr_idx]).items():
+            for val, part in partition(data[:, split_attr]).items():
 
                 child = self._build_tree(data[part], parent=this_node)
                 child.split_value = val
@@ -151,7 +151,7 @@ class DecisionTree():
         else:
             # Decide which child to go next to based on split values
             children = {c.split_value: c for c in dtree.children}
-            child = children.get(x[dtree.attr_idx])
+            child = children.get(x[dtree.split_attr])
 
             # If there isn't a correct outgoing edge
             # then just return the majority class
