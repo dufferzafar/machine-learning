@@ -108,6 +108,9 @@ class DecisionTree():
         # Find the attribute that maximizes the gain
         gain, split_attr = self._best_attribute(data)
 
+        # print("Splitting on:", ATTRIBUTES[split_attr],
+        #       "Data len ", data[:, split_attr])
+
         # Split if gain is positive
         # Does this is result in pre-pruned trees?
         if gain > 0:
@@ -120,8 +123,16 @@ class DecisionTree():
             if binarize:
                 this_node.median_value = np.median(data[:, split_attr])
 
+            partitions = partition(data[:, split_attr], binarize).items()
+
+            # This handles the case when splitting on attributes after binarizing
+            # there may be a single partition which is not pure (wrt class label)
+            # NOTE: Not too sure about this.
+            if binarize and len(partitions) == 1:
+                return this_node
+
             # Create children of this node
-            for val, part in partition(data[:, split_attr], binarize).items():
+            for val, part in partitions:
 
                 child = self._build_tree(data[part], parent=this_node)
                 child.split_value = val
