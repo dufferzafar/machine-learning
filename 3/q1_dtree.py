@@ -23,12 +23,20 @@ from read_data import preprocess
 from decision_tree import DecisionTree
 
 # TODO: Move this data reading into a function
-train_data = preprocess("data/train.csv")
-test_data = preprocess("data/test.csv")
-valid_data = preprocess("data/valid.csv")
 
 
-def plot_accuracies(dtree, fn="plot", step=100):
+def read_rich_poor_data(binarize_median=False):
+    return (
+        preprocess("data/train.csv"),
+        preprocess("data/test.csv"),
+        preprocess("data/valid.csv"),
+    )
+
+
+def plot_node_accuracies(dtree, train_data, test_data, valid_data,
+                         step=100, fn="plot"):
+    """Plot accuracy of a decision tree as the number of nodes grow."""
+
     accuracies = {"train": [], "test": [], "valid": []}
 
     nodes = list(dtree.nodes())
@@ -37,10 +45,9 @@ def plot_accuracies(dtree, fn="plot", step=100):
     nodecounts = []
     totalnodes = len(nodes)
 
-    # step = 100
-
     for i in tqdm(range(0, len(nodes), step), ncols=80, ascii=True):
 
+        # Remove "step" number of nodes at a time
         for node in nodes[i:i + step]:
             dtree._remove_node(node)
 
@@ -68,6 +75,8 @@ def part_a():
     print()
     print("Part A")
 
+    train_data, test_data, valid_data = read_rich_poor_data()
+
     with TimeIt(prefix="Building Decision Tree"):
         dtree = DecisionTree(train_data)
 
@@ -82,13 +91,16 @@ def part_a():
 
     print()
     print("Calculating accuracy at different number of nodes")
-    plot_accuracies(dtree, "output/dtree_part_a_before_pruning")
+    plot_node_accuracies(dtree, train_data, test_data, valid_data,
+                         fn="output/dtree_part_a_before_pruning", step=50)
 
 
 def part_b():
 
     print()
     print("Part B")
+
+    train_data, test_data, valid_data = read_rich_poor_data()
 
     with TimeIt(prefix="Building Decision Tree"):
         dtree = DecisionTree(train_data)
@@ -110,10 +122,16 @@ def part_b():
 
     print()
     print("Calculating accuracy at different number of nodes")
-    plot_accuracies(dtree, fn="output/dtree_part_b_after_pruning", step=50)
+    plot_node_accuracies(dtree, train_data, test_data, valid_data,
+                         fn="output/dtree_part_b_after_pruning", step=50)
 
 
 def part_d():
+
+    print()
+    print("Part C")
+
+    train_data, test_data, valid_data = read_rich_poor_data()
 
     # Run with default parameters
     clf = DecisionTreeClassifier(criterion="entropy", random_state=0)
@@ -162,6 +180,11 @@ def part_d():
 
 def part_e():
 
+    print()
+    print("Part D")
+
+    train_data, test_data, valid_data = read_rich_poor_data()
+
     # Run with default parameters
     clf = RandomForestClassifier(criterion='entropy', random_state=0)
     clf.fit(train_data[:, 1:], train_data[:, 0])
@@ -191,6 +214,7 @@ def part_e():
 if __name__ == '__main__':
 
     part_a()
+    part_b()
 
     # part_d()
     # part_e()
