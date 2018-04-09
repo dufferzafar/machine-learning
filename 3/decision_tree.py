@@ -43,8 +43,16 @@ class Node():
 
     def __repr__(self):
         if self.children:
-            r = (self.cls, self.split_attr, len(self.children))
-            return "<Node: cls=%r, attr=%r, children=%r>" % r
+            r = (self.cls, len(self.children), self.split_attr)
+            r = "<Node: cls=%r, children=%r, split_attr=%r" % r
+
+            if self.split_value:
+                r += ", split_value=%r" % self.split_value
+            if self.median_value:
+                r += ", median=%r" % self.median_value
+
+            r += ">"
+            return r
         else:
             return "<Leaf: cls=%r>" % self.cls
 
