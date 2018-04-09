@@ -25,7 +25,7 @@ from decision_tree import DecisionTree
 # TODO: Move this data reading into a function
 
 
-def read_rich_poor_data(binarize_median=False):
+def read_rich_poor_data(binarize_median=True):
     return (
         preprocess("data/train.csv"),
         preprocess("data/test.csv"),

@@ -118,8 +118,8 @@ class DecisionTree():
 
             gain = entropy(Y) - entropy_Y_Xa
 
-            # TODO: In case of a tie, choose the attribute which appears first in the
-            # ordering as given in the training data.
+            # NOTE: In case of a tie, Does this choose the attribute which
+            # appears first in the ordering as given in the training data.
             if gain > best_gain:
                 best_gain = gain
 
@@ -199,11 +199,6 @@ class DecisionTree():
             q.extend(node.children.values())
 
             yield node
-
-    # TODO: Better description; alternative?
-    def update_nsamples(dtree, data):
-        """Update node.nsamples according to data."""
-        pass
 
     def prune_single_pass(self, valid_data):
         """Prune by making a single pass over data."""

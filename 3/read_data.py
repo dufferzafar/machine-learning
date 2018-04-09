@@ -76,7 +76,7 @@ def medians(file):
     return(statistics.median(age), statistics.median(fnlwgt), statistics.median(edun), statistics.median(capg), statistics.median(capl), statistics.median(hpw))
 
 
-def preprocess(file):
+def preprocess(file, binarize_median=True):
     """
     Given a file, read its data by encoding categorical attributes and binarising continuos attributes based on median.
     params(1):
@@ -111,12 +111,20 @@ def preprocess(file):
 
         # Binarize the numerical attributes based on median.
         # Modify this section to read the file in part c where you split the continuos attributes baed on dynamic median values.
-        t[1] = float(l[0]) >= agem
-        t[3] = float(l[2]) >= fnlwgtm
-        t[5] = float(l[4]) >= edunm
-        t[11] = float(l[10]) >= capgm
-        t[12] = float(l[11]) >= caplm
-        t[13] = float(l[12]) >= hpwm
+        if binarize_median:
+            t[1] = float(l[0]) >= agem
+            t[3] = float(l[2]) >= fnlwgtm
+            t[5] = float(l[4]) >= edunm
+            t[11] = float(l[10]) >= capgm
+            t[12] = float(l[11]) >= caplm
+            t[13] = float(l[12]) >= hpwm
+        else:
+            t[1] = float(l[0])
+            t[3] = float(l[2])
+            t[5] = float(l[4])
+            t[11] = float(l[10])
+            t[12] = float(l[11])
+            t[13] = float(l[12])
 
         # Convert some of the booleans to ints
         data.append([int(x) for x in t])
