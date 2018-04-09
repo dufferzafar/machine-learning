@@ -51,7 +51,9 @@ def plot_node_accuracies(dtree, train_data, test_data, valid_data,
         for node in nodes[i:i + step]:
             dtree._remove_node(node)
 
-        totalnodes -= step
+        # Prevent total number nodes from going below 0
+        # (this will happen at the last iteration)
+        totalnodes = max(totalnodes - step, 0)
         nodecounts.append(totalnodes)
 
         accuracies["train"].append(dtree.score(train_data))
