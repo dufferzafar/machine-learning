@@ -37,20 +37,20 @@ def read_toy_data(neural=False):
 
 
 def read_mnist_data(fn):
-    x, y = [], []
+    X, Y = [], []
 
     # The CSV contains an image per row
     # with the first 784 numbers representing 28x28 pixels
     # and the last value representing the class label
     with open(fn + ".csv") as f:
         for row in csv.reader(f, delimiter=','):
-            y.append(int(row[-1]))
-            x.append([int(n) for n in row[:-1]])
+            Y.append(int(row[-1]))
+            X.append([int(n) for n in row[:-1]])
 
-    X = normalize(x)
-    X = np.array([x.reshape(-1, 1) for x in X])
+    X = np.array([x.reshape(-1, 1) for x in normalize(X)])
+    Y = np.array([0 if y == 6 else 1 for y in Y])
 
-    return X, np.asarray(y)
+    return X, Y
 
 
 def part_b_1():
