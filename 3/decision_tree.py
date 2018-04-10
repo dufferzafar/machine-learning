@@ -283,8 +283,11 @@ class DecisionTree():
                 # and make this node a leaf
                 node.children = []
 
-    def prune_brute(self, valid_data):
+    def prune_brute(self, train_data, test_data, valid_data):
         """Prune by Brute-force - calculating accuracy before and after removing a node."""
+
+        nodecounts = []
+        accuracies = {"train": [], "test": [], "valid": []}
 
         nodes = list(self.nodes())
         nodes.reverse()
@@ -307,9 +310,19 @@ class DecisionTree():
             # Accuracy before removing the node
             val_acc_after = self.score(valid_data)
 
-            # Add the node back if
-            if val_acc_after < val_acc_before:
+            # The tree remains pruned if accuracy increased afterwards
+            if val_acc_after > val_acc_before:
+                nodecounts.append(self.node_count())
+
+                accuracies["train"].append(self.score(train_data))
+                accuracies["test"].append(self.score(test_data))
+                accuracies["valid"].append(val_acc_after)
+
+            elif val_acc_after < val_acc_before:
+                # Add the node back if it accuracy wasn't improved
                 node.children = _children_backup
+
+        return nodecounts, accuracies
 
     def multi_path_attrs(self):
         return {

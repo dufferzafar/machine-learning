@@ -31,6 +31,32 @@ def read_rich_poor_data(binarize_median=True):
     )
 
 
+def save_plot(nodecounts, accuracies, fn, invert=False):
+
+    if invert:
+        plt.gca().invert_xaxis()
+        best_pos = nodecounts.index(min(nodecounts))
+    else:
+        best_pos = nodecounts.index(max(nodecounts))
+
+    plt.plot(nodecounts, accuracies["train"])
+    plt.plot(nodecounts, accuracies["test"])
+    plt.plot(nodecounts, accuracies["valid"])
+
+    plt.legend(
+        [
+            'Train: %.2f' % accuracies["train"][best_pos],
+            'Test: %.2f' % accuracies["test"][best_pos],
+            'Valid: %.2f' % accuracies["valid"][best_pos],
+        ]
+    )
+    plt.ylabel('Accuracy')
+    plt.xlabel('Number of nodes')
+
+    plt.savefig(fn + ".png")
+    plt.close()
+
+
 def plot_node_accuracies(dtree, train_data, test_data, valid_data,
                          step=100, fn="plot"):
     """Plot accuracy of a decision tree as the number of nodes grow."""
@@ -58,16 +84,7 @@ def plot_node_accuracies(dtree, train_data, test_data, valid_data,
         accuracies["test"].append(dtree.score(test_data))
         accuracies["valid"].append(dtree.score(valid_data))
 
-    plt.plot(nodecounts, accuracies["train"])  # linestyle='-', marker='o')
-    plt.plot(nodecounts, accuracies["test"])  # linestyle='-', marker='o')
-    plt.plot(nodecounts, accuracies["valid"])  # linestyle='-', marker='o')
-
-    plt.legend(['Train', 'Test', 'Validation'], loc='lower right')
-    plt.ylabel('Accuracy')
-    plt.xlabel('Number of nodes')
-
-    plt.savefig(fn + ".png")
-    plt.close()
+    save_plot(nodecounts, accuracies, fn)
 
 
 def part_a():
@@ -108,8 +125,8 @@ def part_b():
     print()
     print("Pruning the tree")
 
-    # dtree.prune_single_pass(valid_data)
-    dtree.prune_brute(valid_data)
+    nc, acc = dtree.prune_brute(train_data, test_data, valid_data)
+    save_plot(nc, acc, "output/dtree_part_b_while_pruning", invert=True)
 
     print()
     print("Tree height", dtree.height())
