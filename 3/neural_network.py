@@ -250,9 +250,13 @@ class NeuralNetwork():
 
         sys.stdout.write("\n\n")
 
-    def total_error(self, X, Y):
-        """Average error"""
-        return sum(QuadCost.f(self.feed_forward(x), y) for x, y in zip(X, Y)) / len(X)
+    def total_error(self, X, Y, avg=False):
+        """Total error on all examples."""
+        # TODO: Total absolute error has issues with convergence. Fix!?
+        div = 1
+        if avg:
+            div = len(X)
+        return sum(QuadCost.f(self.feed_forward(x), y) for x, y in zip(X, Y)) / div
 
     def score(self, X, y):
         """Calculate accuracy of this net on data."""
