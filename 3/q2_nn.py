@@ -78,7 +78,6 @@ def part_b_2():
 
     print()
     print("Part B 2")
-    print("Architecture: 2 - 5 - 1")
 
     nn = NeuralNetwork(topo=[2, 5, 1])
 
@@ -125,7 +124,6 @@ def part_b_4():
 
     print()
     print("Part B 4")
-    print("Architecture: 2 - 5 - 5 - 1")
 
     nn = NeuralNetwork(topo=[2, 5, 5, 1])
 
@@ -141,7 +139,7 @@ def part_b_4():
 
 
 def part_c_1():
-    # LIBSVM Linear + Single Perceptron
+    # TODO: LIBSVM Linear
 
     print()
     print("Part C 1")
@@ -150,11 +148,9 @@ def part_c_1():
     trainX, trainY = read_mnist_data("data/MNIST_train")
     testX, testY = read_mnist_data("data/MNIST_test")
 
-    print("Architecture: 784 - 1")
     nn = NeuralNetwork(topo=[784, 1])
-    nn.train(trainX, trainY, epochs=100, eta=3)
-
-    # TODO: Fix scoring for single perceptron case
+    nn.train(trainX, trainY, eta=0,
+             epochs=100, error_threshold=10**-5)
 
     print("Training Accuracy", 100 * nn.score(trainX, trainY))
     print("Testing Accuracy", 100 * nn.score(testX, testY))
@@ -169,11 +165,9 @@ def part_c_2():
     trainX, trainY = read_mnist_data("data/MNIST_train")
     testX, testY = read_mnist_data("data/MNIST_test")
 
-    # TODO: Stopping criteria based on change in value of error function
-
-    print("Architecture: 784 - 100 - 10")
-    nn = NeuralNetwork(topo=[784, 100, 10])
-    nn.train(trainX, trainY, epochs=100, eta=0)
+    nn = NeuralNetwork(topo=[784, 100, 1])
+    nn.train(trainX, trainY, eta=0,
+             epochs=100, error_threshold=10**-5)
 
     print("Training Accuracy", 100 * nn.score(trainX, trainY))
     print("Testing Accuracy", 100 * nn.score(testX, testY))
@@ -190,8 +184,10 @@ def part_c_3():
 
     # TODO: ReLU at hidden layers, Sigmoid at output
 
-    nn = NeuralNetwork(topo=[784, 100, 10])
-    nn.train(trainX, trainY, epochs=10, eta=30, user_relu=True)
+    nn = NeuralNetwork(topo=[784, 100, 1])
+    nn.train(trainX, trainY, eta=0,
+             epochs=100, error_threshold=10**-5,
+             use_relu=True)
 
     print("Training Accuracy", 100 * nn.score(trainX, trainY))
     print("Testing Accuracy", 100 * nn.score(testX, testY))
