@@ -181,12 +181,9 @@ def part_c_3():
     trainX, trainY = read_mnist_data("data/MNIST_train")
     testX, testY = read_mnist_data("data/MNIST_test")
 
-    # TODO: ReLU at hidden layers, Sigmoid at output
-
-    nn = NeuralNetwork(topo=[784, 100, 1])
+    nn = NeuralNetwork(topo=[784, 100, 1], use_relu=True)
     nn.train(trainX, trainY, eta=0,
-             epochs=100, error_threshold=10**-5,
-             use_relu=True)
+             epochs=100, error_threshold=10**-5)
 
     print("Training Accuracy", 100 * nn.score(trainX, trainY))
     print("Testing Accuracy", 100 * nn.score(testX, testY))

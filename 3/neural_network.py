@@ -41,11 +41,13 @@ class ReLU:
 
     @staticmethod
     def f(x):
-        return np.maximum(0.0, x)
+        # Return x, where x > 0
+        return x * (x > 0)
 
     @staticmethod
     def df(x):
-        return 0 if x < 0 else 1
+        # Return 1, where x > 0
+        return 1 * (x > 0)
 
 
 class QuadCost:
@@ -63,15 +65,15 @@ class QuadCost:
 
 class NeuralNetwork():
 
-    def __init__(self,
-                 topo=[2, 5, 2],
-                 activation_func=Sigmoid):
+    def __init__(self, topo, use_relu=False):
 
         print()
         print("NN Architecture: ", " - ".join(map(str, topo)))
 
-        # Can be Sigmoid or ReLU
-        self.activation_func = activation_func
+        if use_relu:
+            print("Using ReLU activation at hidden layers.")
+
+        self.use_relu = use_relu
 
         self.topo = topo
         self.nlayers = len(topo)
@@ -94,9 +96,18 @@ class NeuralNetwork():
         outputs = [a]
 
         # Feed the data forward
-        for w, b in zip(self.weights, self.biases):
-            z = w @ a + b
-            a = self.activation_func.f(z)
+        for j in range(self.nlayers - 1):
+
+            w = self.weights[j]
+            b = self.biases[j]
+
+            net_j = w @ a + b
+
+            # ReLU is only used in hidden layers
+            if self.use_relu and j < self.nlayers - 2:
+                a = ReLU.f(net_j)
+            else:
+                a = Sigmoid.f(net_j)
 
             outputs.append(a)
 
@@ -123,8 +134,12 @@ class NeuralNetwork():
         # Computation is done moving backwards
         for j in range(1, self.nlayers):
 
-            # del_Oj / del_Netj = Oj (1 - Oj)
-            del_out = self.activation_func.df(outputs[-j])
+            # ReLU is only used in hidden layers
+            if self.use_relu and -j != -1:
+                del_out = ReLU.df(outputs[-j])
+            else:
+                # del_Oj / del_Netj = Oj (1 - Oj)
+                del_out = Sigmoid.df(outputs[-j])
 
             # At the last layer
             if -j == -1:
