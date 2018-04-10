@@ -146,14 +146,12 @@ def part_c():
     print("Accuracy (validation data)", dtree.score(valid_data))
 
     print()
-    print("Counting numerical attributes that are split multiple times.")
+    print("Numerical attributes that are split multiple times:")
     print()
 
-    for attr, thresholds in dtree.count_attributes_on_path():
-        if attr == "fnlwgt":
-            print(attr, " : ", len(thresholds))
-        elif len(thresholds) > 1:
-            print(attr, " : ", thresholds)
+    for attr, thresholds in dtree.multi_path_attrs().items():
+        if len(thresholds) > 1:
+            print(attr, thresholds)
 
     print()
     print("Calculating accuracy at different number of nodes")

@@ -1,4 +1,5 @@
 from collections import deque
+from functools import partial
 
 import numpy as np
 
@@ -6,9 +7,6 @@ from tqdm import tqdm
 
 from read_data import ATTRIBUTES, ATTRIBUTES_NUMERICAL
 from common import accuracy
-
-# Global state for DecisionTree.count_attributes_on_path()
-MAX_ATTR_SPLIT = {attr: [] for attr in ATTRIBUTES_NUMERICAL}
 
 
 def attribute_is_numerical(split_attr):
@@ -244,9 +242,8 @@ class DecisionTree():
 
         return parent
 
-    # NOTE: There is a discrepancy in how the tree was built
+    # There is a discrepancy in how the tree was built
     # and how it is being iterated upon; fix?
-    # TODO: Use DFS instead of BFS?
     def nodes(self):
         """Iterate over all nodes in the tree in BFS order."""
 
@@ -314,36 +311,23 @@ class DecisionTree():
             if val_acc_after < val_acc_before:
                 node.children = _children_backup
 
-    def count_attributes_on_path(self):
-        self._count_attributes_on_path(self.root, {})
-        return MAX_ATTR_SPLIT.items()
+    def multi_path_attrs(self):
+        return {
+            attr: self._multi_path_attrs(self.root, attr)
+            for attr in ATTRIBUTES_NUMERICAL
+        }
 
     @staticmethod
-    def _count_attributes_on_path(dtree, path_attrs):
-        """
-        Count numerical attributes on a decision path along with corresponding thresholds.
-
-        Updates MAX_ATTR_SPLIT with values.
-        """
+    def _multi_path_attrs(dtree, attr):
+        """Return thresholds of a numerical attribute that occurs multiple times on a path in tree."""
 
         if not dtree.children:
+            return []
+        else:
+            mpa = partial(DecisionTree._multi_path_attrs, attr=attr)
+            max_path_thresholds = max(map(mpa, dtree.children), key=len)
 
-            # print(path_attrs)
-            for attr, medians in path_attrs.items():
-                if len(medians) > len(MAX_ATTR_SPLIT[attr]):
-                    MAX_ATTR_SPLIT[attr] = medians
-
-        # This is a numerical attribute
-        if dtree.median_value:
-            attr_name = ATTRIBUTES[dtree.split_attr]
-
-            # Copy the dict, for new path
-            path_attrs = dict(path_attrs)
-
-            if attr_name not in path_attrs:
-                path_attrs[attr_name] = [dtree.median_value]
+            if attr == ATTRIBUTES[dtree.split_attr] and dtree.median_value is not None:
+                return [dtree.median_value] + max_path_thresholds
             else:
-                path_attrs[attr_name].append(dtree.median_value)
-
-        for child in dtree.children:
-            DecisionTree._count_attributes_on_path(child, path_attrs)
+                return list(max_path_thresholds)
