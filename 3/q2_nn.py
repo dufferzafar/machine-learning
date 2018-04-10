@@ -86,9 +86,11 @@ def part_b_2():
     print("Training Accuracy", 100 * nn.score(toy_trainX, toy_trainY))
     print("Testing Accuracy", 100 * nn.score(toy_testX, toy_testY))
 
+    print("Generating plot for training data")
     plot_decision_boundary(nn.predict, toy_trainX, toy_trainY,
                            "Toy Training Data", "b2_train_5")
 
+    print("Generating plot for testing data")
     plot_decision_boundary(nn.predict, toy_testX, toy_testY,
                            "Toy Testing Data", "b2_test_5")
 
@@ -103,7 +105,8 @@ def part_b_3():
     for hidden_units in [1, 2, 3, 5, 10, 20, 40]:
 
         nn = NeuralNetwork(topo=[2, hidden_units, 1])
-        nn.train(toy_trainX, toy_trainY, batch_size=0, epochs=5000, eta=0)
+        nn.train(toy_trainX, toy_trainY, eta=0,
+                 batch_size=0, epochs=6000, error_threshold=10**-6)
 
         train_acc = 100 * nn.score(toy_trainX, toy_trainY)
         test_acc = 100 * nn.score(toy_testX, toy_testY)
@@ -116,6 +119,7 @@ def part_b_3():
             (hidden_units, train_acc, test_acc)
         )
 
+        print("\n Generating plot for test data")
         plot_decision_boundary(nn.predict, toy_testX, toy_testY, title,
                                "b3_test_%d" % hidden_units)
 
@@ -129,13 +133,17 @@ def part_b_4():
 
     nn = NeuralNetwork(topo=[2, 5, 5, 1])
 
-    nn.train(toy_trainX, toy_trainY, batch_size=0, epochs=5000, eta=0)
+    nn.train(toy_trainX, toy_trainY, eta=0,
+             batch_size=0, epochs=6000, error_threshold=10**-5)
 
     print("Training Accuracy", 100 * nn.score(toy_trainX, toy_trainY))
     print("Testing Accuracy", 100 * nn.score(toy_testX, toy_testY))
 
+    print("Generating plot for training data")
     plot_decision_boundary(nn.predict, toy_trainX, toy_trainY,
                            "Toy Training Data", "b4_train_5_5")
+
+    print("Generating plot for testing data")
     plot_decision_boundary(nn.predict, toy_testX, toy_testY,
                            "Toy Testing Data", "b4_test_5_5")
 
@@ -151,7 +159,7 @@ def part_c_1():
 
     nn = NeuralNetwork(topo=[784, 1])
     nn.train(trainX, trainY, eta=0,
-             epochs=100, error_threshold=10**-5)
+             epochs=500, error_threshold=10**-2)
 
     print("Training Accuracy", 100 * nn.score(trainX, trainY))
     print("Testing Accuracy", 100 * nn.score(testX, testY))
@@ -168,7 +176,7 @@ def part_c_2():
 
     nn = NeuralNetwork(topo=[784, 100, 1])
     nn.train(trainX, trainY, eta=0,
-             epochs=100, error_threshold=10**-5)
+             epochs=500, error_threshold=10**-2)
 
     print("Training Accuracy", 100 * nn.score(trainX, trainY))
     print("Testing Accuracy", 100 * nn.score(testX, testY))
@@ -185,7 +193,7 @@ def part_c_3():
 
     nn = NeuralNetwork(topo=[784, 100, 1], use_relu=True)
     nn.train(trainX, trainY, eta=0,
-             epochs=100, error_threshold=10**-5)
+             epochs=500, error_threshold=10**-2)
 
     print("Training Accuracy", 100 * nn.score(trainX, trainY))
     print("Testing Accuracy", 100 * nn.score(testX, testY))
