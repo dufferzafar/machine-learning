@@ -69,6 +69,9 @@ class NeuralNetwork():
                  topo=[2, 5, 2],
                  activation_func=Sigmoid):
 
+        print()
+        print("NN Architecture: ", " - ".join(map(str, topo)))
+
         # Can be Sigmoid or ReLU
         self.activation_func = activation_func
 
@@ -137,7 +140,7 @@ class NeuralNetwork():
 
         return dw, db
 
-    def train(self, X, y, eta=0.05, batch_size=100, epochs=10):
+    def train(self, X, y, eta=0.05, batch_size=100, epochs=10, error_threshold=10**-6):
         """
         Train the network using mini-batch gradient descent.
         """
@@ -192,7 +195,7 @@ class NeuralNetwork():
             sys.stdout.write("Error: %.5f" % error)
 
             # Early stopping
-            if abs(error_old - error) <= 10**-5:
+            if abs(error_old - error) <= error_threshold:
                 print("\nStopping criteria reached")
                 break
 
