@@ -100,21 +100,23 @@ def part_b_3():
     print()
     print("Part B 3")
 
-    # TODO: Not working with a single hidden unit - 2 1 1
-    # for hidden_units in [2, 3, 10, 20, 40]:
-    for hidden_units in [2, 3, 10, 20, 40]:
-
-        print()
-        print("Hidden units %d" % hidden_units)
+    for hidden_units in [1, 2, 3, 5, 10, 20, 40]:
 
         nn = NeuralNetwork(topo=[2, hidden_units, 1])
         nn.train(toy_trainX, toy_trainY, batch_size=0, epochs=5000, eta=0)
 
-        print("Training Accuracy", 100 * nn.score(toy_trainX, toy_trainY))
-        print("Testing Accuracy", 100 * nn.score(toy_testX, toy_testY))
+        train_acc = 100 * nn.score(toy_trainX, toy_trainY)
+        test_acc = 100 * nn.score(toy_testX, toy_testY)
 
-        plot_decision_boundary(nn.predict, toy_testX, toy_testY,
-                               "Toy Testing Data (%d hidden units)" % hidden_units,
+        print("Training Accuracy", train_acc)
+        print("Testing Accuracy", test_acc)
+
+        title = (
+            "Toy Testing Data (%d hidden units) | Train: %.2f | Test: %.2f" %
+            (hidden_units, train_acc, test_acc)
+        )
+
+        plot_decision_boundary(nn.predict, toy_testX, toy_testY, title,
                                "b3_test_%d" % hidden_units)
 
 
