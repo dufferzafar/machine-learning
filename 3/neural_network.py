@@ -81,6 +81,9 @@ class NeuralNetwork():
         # These are a neural net's parameters
         # Look into how we could maintain weights & biases in single structure
         self.weights = []
+
+        # In my testing:
+        # things were working just fine even without having any Biases at all.
         self.biases = []
 
         # Parameters are initialzed by random values
