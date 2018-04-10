@@ -187,12 +187,13 @@ def part_d():
     clf = DecisionTreeClassifier(criterion="entropy", random_state=0)
     clf.fit(train_data[:, 1:], train_data[:, 0])
 
-    print("")
+    print("\nsklearn's Decision Tree\n")
     print("Accuracy", 100 * clf.score(valid_data[:, 1:], valid_data[:, 0]))
     print("Depth", clf.tree_.max_depth)
     print("Node Count", clf.tree_.node_count)
 
-    # Plot the effect of maximum depth on accuracy
+    print("\nPlotting the effect of maximum depth on accuracy")
+
     accuracy = []
     depths = range(3, 30)
     for d in depths:
@@ -206,6 +207,8 @@ def part_d():
     plt.xlabel("Maximum depth of tree")
     plt.ylabel("Validation accuracy")
     plt.show()
+
+    print("\nNow running a grid search to find best parameters")
 
     # Range of parameters to find best accuracy over
     parameters = {
@@ -235,11 +238,16 @@ def part_e():
 
     train_data, test_data, valid_data = read_rich_poor_data()
 
+    print("\nsklearn's Random Forest\n")
+
     # Run with default parameters
     clf = RandomForestClassifier(criterion='entropy', random_state=0)
     clf.fit(train_data[:, 1:], train_data[:, 0])
-    print("Random forest accuracy (default parameters)",
+
+    print("Validation Accuracy (default parameters)",
           clf.score(valid_data[:, 1:], valid_data[:, 0]))
+
+    print("\nNow running a grid search to find best parameters")
 
     parameters = {
         'n_estimators': range(5, 25),
