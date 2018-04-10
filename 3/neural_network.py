@@ -1,7 +1,5 @@
 """
 A neural network implementation trained using mini-batch gradient descent.
-
-https://en.wikipedia.org/wiki/Backpropagation
 """
 
 import sys
@@ -88,11 +86,11 @@ class NeuralNetwork():
             self.weights.append(np.random.randn(k, j) / np.sqrt(j))
             self.biases.append(np.random.randn(k, 1))
 
-    def feedforward(self, a, return_lists=False):
+    def feed_forward(self, a, return_list=False):
+        """Feed data forward and return output(s) of all layers or just the last one."""
 
-        # Net input & output (also called activation) at each layer
+        # Output (also called activation) at each layer (net inputs are not really required)
         # The first layer has no input and the output is just the data as it is
-        inputs = []
         outputs = [a]
 
         # Feed the data forward
@@ -100,43 +98,43 @@ class NeuralNetwork():
             z = w @ a + b
             a = self.activation_func.f(z)
 
-            inputs.append(z)
             outputs.append(a)
 
-        if return_lists:
-            # The lists are needed during backprop
-            return inputs, outputs
+        if return_list:
+            # This list is needed during backprop
+            return outputs
         else:
             # Last layer's activations are the actual output of the net
             return outputs[-1]
 
-    def backprop(self, x, y):
+    def back_propagation(self, outputs, target):
         """
-        Compute updated gradients at each layer using Backpropagation.
+        Compute gradients at each layer using Backpropagation.
+
+        Only requires the outputs at each layer.
+
+        https://en.wikipedia.org/wiki/Backpropagation
         """
 
-        # Wikipedia calls these Net_j and O_j
-        inputs, outputs = self.feedforward(x, return_lists=True)
-
-        # Create empty lists to hold gradient updates
+        # Create empty lists to hold gradients
         dw = [0] * (self.nlayers - 1)
         db = [0] * (self.nlayers - 1)
 
-        # Compute the updates for other layers - moving backwards
-        for L in range(1, self.nlayers):
+        # Computation is done moving backwards
+        for j in range(1, self.nlayers):
 
             # del_Oj / del_Netj = Oj (1 - Oj)
-            del_out = self.activation_func.df(outputs[-L])
+            del_out = self.activation_func.df(outputs[-j])
 
             # At the last layer
-            if -L == -1:
-                delta = del_out * (outputs[-1] - y)
+            if -j == -1:
+                delta = del_out * (outputs[-1] - target)
             else:
-                delta = del_out * (self.weights[-L + 1].T @ delta)
+                delta = del_out * (self.weights[-j + 1].T @ delta)
 
-            # Gradient updates at this layer
-            dw[-L] = delta @ outputs[-L - 1].T
-            db[-L] = delta
+            # Gradients at this layer
+            dw[-j] = delta @ outputs[-j - 1].T
+            db[-j] = delta
 
         return dw, db
 
@@ -150,6 +148,9 @@ class NeuralNetwork():
         # Encode data to work with the net
         X = np.array([x.reshape(-1, 1) for x in X])
         idx = np.arange(len(X))
+
+        if not batch_size:
+            batch_size = len(X)
 
         # If last layer has more than 1 layer, then one-hot-encode the target values
         if self.topo[-1] > 1:
@@ -180,14 +181,23 @@ class NeuralNetwork():
                 batch = idx[i:i + batch_size]
                 Xb, yb = X[batch], y[batch]
 
-                gradients = [self.backprop(x, y) for x, y in zip(Xb, yb)]
-                dw = list(sum(np.array(w) for w, _ in gradients))
-                db = list(sum(np.array(b) for _, b in gradients))
+                gradient_updates = []
 
-                # Update the parameters of each layer
+                # Go over each example and compute gradients for them
+                for xb, yb in zip(Xb, yb):
+                    layer_outputs = self.feed_forward(xb, return_list=True)
+                    dw, db = self.back_propagation(layer_outputs, target=yb)
+
+                    gradient_updates.append((dw, db))
+
+                # Mean of the gradients of this batch
+                dw = list(sum(np.array(w) for w, _ in gradient_updates) / len(Xb))
+                db = list(sum(np.array(b) for _, b in gradient_updates) / len(Xb))
+
+                # Update the parameters of each layer - gradient descent step!
                 for l in range(self.nlayers - 1):
-                    self.weights[l] -= (eta / len(Xb)) * dw[l]
-                    self.biases[l] -= (eta / len(Xb)) * db[l]
+                    self.weights[l] -= eta * dw[l]
+                    self.biases[l] -= eta * db[l]
 
             error_old = error
             error = self.total_error(X, y)
@@ -207,7 +217,7 @@ class NeuralNetwork():
 
     def total_error(self, X, Y):
         """Average error"""
-        return sum(QuadCost.f(self.feedforward(x), y) for x, y in zip(X, Y)) / len(X)
+        return sum(QuadCost.f(self.feed_forward(x), y) for x, y in zip(X, Y)) / len(X)
 
     def score(self, X, y):
         """Calculate accuracy of this net on data."""
@@ -218,6 +228,6 @@ class NeuralNetwork():
 
         # If there is a single output unit then use thresholding
         if self.topo[-1] == 1:
-            return np.array([int(self.feedforward(x.reshape(-1, 1)) > 0.5) for x in X])
+            return np.array([int(self.feed_forward(x.reshape(-1, 1)) > 0.5) for x in X])
         else:
-            return np.array([self.feedforward(x.reshape(-1, 1)).argmax() for x in X])
+            return np.array([self.feed_forward(x.reshape(-1, 1)).argmax() for x in X])

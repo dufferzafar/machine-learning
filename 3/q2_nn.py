@@ -81,7 +81,7 @@ def part_b_2():
 
     nn = NeuralNetwork(topo=[2, 5, 1])
 
-    nn.train(toy_trainX, toy_trainY, epochs=5000, eta=4.5)
+    nn.train(toy_trainX, toy_trainY, batch_size=0, epochs=5000, eta=3)
 
     print("Training Accuracy", 100 * nn.score(toy_trainX, toy_trainY))
     print("Testing Accuracy", 100 * nn.score(toy_testX, toy_testY))
@@ -108,7 +108,7 @@ def part_b_3():
         print("Hidden units %d" % hidden_units)
 
         nn = NeuralNetwork(topo=[2, hidden_units, 1])
-        nn.train(toy_trainX, toy_trainY, epochs=5000, eta=1)
+        nn.train(toy_trainX, toy_trainY, batch_size=0, epochs=5000, eta=0)
 
         print("Training Accuracy", 100 * nn.score(toy_trainX, toy_trainY))
         print("Testing Accuracy", 100 * nn.score(toy_testX, toy_testY))
@@ -127,7 +127,7 @@ def part_b_4():
 
     nn = NeuralNetwork(topo=[2, 5, 5, 1])
 
-    nn.train(toy_trainX, toy_trainY, epochs=5000, eta=1)
+    nn.train(toy_trainX, toy_trainY, batch_size=0, epochs=5000, eta=0)
 
     print("Training Accuracy", 100 * nn.score(toy_trainX, toy_trainY))
     print("Testing Accuracy", 100 * nn.score(toy_testX, toy_testY))
@@ -139,7 +139,6 @@ def part_b_4():
 
 
 def part_c_1():
-    # TODO: LIBSVM Linear
 
     print()
     print("Part C 1")
