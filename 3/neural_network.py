@@ -156,12 +156,11 @@ class NeuralNetwork():
 
         return dw, db
 
-    def train(self, X, y, eta=0.05, batch_size=100, epochs=10, error_threshold=10**-6):
+    def train(self, X, y, eta=0.05, batch_size=100,
+              epochs=100, error_threshold=10**-5, valid_data=[]):
         """
         Train the network using mini-batch gradient descent.
         """
-
-        # TODO: Stopping criteria based on validation set accuracy
 
         # Encode data to work with the net
         X = np.array([x.reshape(-1, 1) for x in X])
@@ -179,6 +178,7 @@ class NeuralNetwork():
         # Assume infinite error at beginning
         epoch = 0
         error = np.inf
+        valid_error = np.inf
 
         # Go over the data these many times
         while True:
@@ -224,10 +224,16 @@ class NeuralNetwork():
                     self.weights[l] -= eta * dw[l]
                     self.biases[l] -= eta * db[l]
 
+            # Compute error on training data data
             error_old = error
             error = self.total_error(X, y)
 
             sys.stdout.write("Error: %.5f" % error)
+
+            # Compute error on validation data
+            if valid_data:
+                valid_error_old = valid_error
+                valid_error = self.total_error(*valid_data)
 
             # Early stopping
             if abs(error_old - error) <= error_threshold:
@@ -236,6 +242,10 @@ class NeuralNetwork():
 
             elif epoch == epochs:
                 print("\nMaximum epochs reached")
+                break
+
+            elif valid_data and valid_error > valid_error_old:
+                print("\nValidation error increased")
                 break
 
         sys.stdout.write("\n\n")
