@@ -199,21 +199,28 @@ class NeuralNetwork():
                 batch = idx[i:i + batch_size]
                 Xb, yb = X[batch], y[batch]
 
-                gradient_updates = []
+                # These will store the mean of the gradients of a batch
+                dw, db = [0] * self.nlayers, [0] * self.nlayers
 
-                # Go over each example and compute gradients for them
+                # Go over each sample and compute gradients for them
                 for xb, yb in zip(Xb, yb):
+
                     layer_outputs = self.feed_forward(xb, return_list=True)
-                    dw, db = self.back_propagation(layer_outputs, target=yb)
+                    gradients = self.back_propagation(layer_outputs, target=yb)
 
-                    gradient_updates.append((dw, db))
+                    # Add gradients of this sample to the accumulated mean of the batch
+                    for i, (dw_i, db_i) in enumerate(zip(*gradients)):
 
-                # Mean of the gradients of this batch
-                dw = list(sum(np.array(w) for w, _ in gradient_updates) / len(Xb))
-                db = list(sum(np.array(b) for _, b in gradient_updates) / len(Xb))
+                        if dw[i] is 0:  # Initialization condition
+                            dw[i] = np.zeros(self.weights[i].shape)
+                            db[i] = np.zeros(self.biases[i].shape)
+
+                        dw[i] += dw_i / len(Xb)
+                        db[i] += db_i / len(Xb)
 
                 # Update the parameters of each layer - gradient descent step!
                 for l in range(self.nlayers - 1):
+
                     self.weights[l] -= eta * dw[l]
                     self.biases[l] -= eta * db[l]
 
@@ -224,7 +231,7 @@ class NeuralNetwork():
 
             # Early stopping
             if abs(error_old - error) <= error_threshold:
-                print("\nStopping criteria reached")
+                print("\nError threshold reached")
                 break
 
             elif epoch == epochs:
@@ -244,8 +251,9 @@ class NeuralNetwork():
     def predict(self, X):
         """Predict classes for data."""
 
-        # If there is a single output unit then use thresholding
         if self.topo[-1] == 1:
+            # If there is a single output unit then use thresholding
             return np.array([int(self.feed_forward(x.reshape(-1, 1)) > 0.5) for x in X])
         else:
+            # Otherwise use the index of the neuron with maximum output
             return np.array([self.feed_forward(x.reshape(-1, 1)).argmax() for x in X])
