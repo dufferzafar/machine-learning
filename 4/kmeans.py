@@ -1,7 +1,7 @@
 from collections import Counter
 
 import numpy as np
-
+from matplotlib import pyplot as plt
 from sklearn.cluster import KMeans
 
 from common import load_data, write_csv, accuracy
@@ -27,7 +27,8 @@ def cluster_labels(km, Y):
 def part_a(max_iter=300):
     print("Training Kmeans (max_iter=%d)" % max_iter)
 
-    kmeans = KMeans(n_init=10, n_clusters=20, max_iter=max_iter, random_state=0).fit(trX)
+    kmeans = KMeans(n_init=10, n_clusters=20,
+                    max_iter=max_iter, random_state=0).fit(trX)
     labels = cluster_labels(kmeans, trY)
 
     # Find training accuracy
@@ -46,5 +47,20 @@ def part_b():
         part_a(max_iter)
 
 
+def plot_accuracies():
+    max_iter = [10, 20, 30, 40, 50]
+    # Values by running part_b; and kaggle!
+    plt.plot(max_iter, [0.34652, 0.35422, 0.34787, 0.34687, 0.34600])
+    plt.plot(max_iter, [0.34572, 0.35220, 0.34515, 0.34645, 0.34520])
+
+    plt.xlabel("Maximum number of iterations")
+    plt.ylabel("Accuracy")
+
+    plt.legend(["Train", "Test"])
+    plt.show()
+
+
 if __name__ == '__main__':
-    part_a()
+    # part_a()
+    # part_b()
+    plot_accuracies()
