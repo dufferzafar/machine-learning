@@ -1,3 +1,6 @@
+# CSV files uploaded to Kaggle
+*.csv
+
 data/
 output/
 
