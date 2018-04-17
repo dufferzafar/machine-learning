@@ -1,3 +1,6 @@
+C=\033[1;035m # Color
+NC=\033[0m # No Color
+
 default: run
 
 run:
@@ -7,5 +10,8 @@ download:
 	@kaggle competitions download -c col-774-spring-2018
 
 submit:
-	@# TODO: Ensure that older CSVs get backed up?
-	@kaggle competitions submit -c col-774-spring-2018 -f "kaggle_submit.csv" -m "Tried this? & That?"
+	@printf "$(C)Uploading file '$(f)' with message '$(m)'$(NC)\n"
+	@kaggle competitions submit -c col-774-spring-2018 -f "$(f)" -m "$(m)"
+
+kaggle:
+	@xdg-open "https://www.kaggle.com/c/col-774-spring-2018"
