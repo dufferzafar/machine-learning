@@ -38,15 +38,32 @@ def pca_svm_linear():
         ('pca', PCA(n_components=50)),
 
         # Learn a hyperplane in that space
-        ('clf', SVC(verbose=True)),
+        ('clf', SVC(kernel="linear")),
     ])
 
+    print("Fitting PCA (50) + SVM (Linear)")
     pipeline.fit(trX, trY)
 
     print("Training Accuracy: ", pipeline.score(trX, trY))
 
     tsP = pipeline.predict(tsX)
-    write_csv("1_b_pca_svm.csv", tsP)
+    write_csv("pca_50_svm_linear.csv", tsP)
+
+
+def pca_svm_rbf():
+    pipeline = Pipeline([
+        ('scaler', StandardScaler()),
+        ('pca', PCA(n_components=200)),
+        ('clf', SVC(kernel="rbf")),
+    ])
+
+    print("Fitting PCA + SVM")
+    pipeline.fit(trX, trY)
+
+    print("Training Accuracy: ", pipeline.score(trX, trY))
+
+    tsP = pipeline.predict(tsX)
+    write_csv("pca_250_svm_rbf.csv", tsP)
 
 
 if __name__ == '__main__':
