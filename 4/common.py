@@ -21,11 +21,13 @@ def load_data():
     trY = np.concatenate(Y, axis=0)
     tsX = np.load("data/test/test.npy")
 
-    return trX, trY, tsX
+    return trX.astype("float64"), trY, tsX.astype("float64")
 
 
 def write_csv(file, labels):
     """Write test labels onto CSV file."""
+
+    print("Writing labels to: %s" % file)
 
     with open(file, "w") as csv_file:
         writer = csv.writer(csv_file, delimiter=',')
