@@ -1,6 +1,9 @@
 import numpy as np
 
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import (
+    ParameterGrid,
+    train_test_split,
+)
 
 import torch
 import torch.nn as nn
@@ -10,16 +13,6 @@ from torch.utils.data import Dataset, DataLoader
 from torch.autograd import Variable
 
 from common import load_data, accuracy, write_csv
-
-
-# Hyper Parameters
-hidden_size = 500
-max_epochs = 100
-batch_size = 100
-learning_rate = 0.001
-
-trX, trY, tsX = load_data()
-classes, trYi = np.unique(trY, return_inverse=True)
 
 
 class Sketches(Dataset):
@@ -54,7 +47,8 @@ class Net(nn.Module):
         return x
 
 
-def train(net, train_data, dev_data=None):
+def train(net, train_data, dev_data=None,
+          max_epochs=100, learning_rate=0.001, quiet=False):
 
     # Loss and Optimizer
     criterion = nn.CrossEntropyLoss()
@@ -82,17 +76,19 @@ def train(net, train_data, dev_data=None):
             # Update weights
             optimizer.step()
 
-        print(
-            "\r",
-            "Epoch [%d/%d]" % (epoch + 1, max_epochs),
-            "| Train Loss: %.4f" % loss.data[0],
-            "| Train Acc: %.4f" % predict(net, train_data, return_acc=True),
-            "| Dev Acc: %.4f" % predict(net, dev_data, return_acc=True),
-            sep=" ",
-            end="",
-        )
+        if not quiet:
+            print(
+                "\r",
+                "Epoch [%d/%d]" % (epoch + 1, max_epochs),
+                "| Train Loss: %.4f" % loss.data[0],
+                "| Train Acc: %.4f" % predict(net, train_data, return_acc=True),
+                "| Dev Acc: %.4f" % predict(net, dev_data, return_acc=True),
+                sep=" ",
+                end="",
+            )
 
-    print("\n")
+    if not quiet:
+        print("\n")
 
 
 def predict(net, data, return_acc=False):
@@ -119,7 +115,13 @@ def predict(net, data, return_acc=False):
 
 if __name__ == '__main__':
 
+    trX, trY, tsX = load_data()
+    classes, trYi = np.unique(trY, return_inverse=True)
+
     trX_, tvX_, trY_, tvY_ = train_test_split(trX, trYi, test_size=0.3)
+
+    # Data
+    batch_size = 100
 
     trD = DataLoader(Sketches(trX_, trY_),
                      batch_size, shuffle=True)
@@ -127,21 +129,33 @@ if __name__ == '__main__':
     tvD = DataLoader(Sketches(tvX_, tvY_),
                      batch_size, shuffle=False)
 
-    # Build the network
-    net = Net(784, hidden_size, 20)
+    # Hyper Parameters
+    # hidden_size = 120
+    # max_epochs = 50
+    # learning_rate = 0.001
 
-    # Train it
-    train(net, trD, tvD)
+    parameters = {
+        'hidden_size': range(50, 100, 10),
+        'max_epochs': range(25, 50, 5),
+        'learning_rate': [0.01, 0.005, 0.001],
+    }
+
+    results = {}
+    for params in ParameterGrid(parameters):
+
+        print("Training net", params)
+
+        # Build the network
+        net = Net(784, params.pop("hidden_size"), 20)
+
+        # Train it
+        train(net, trD, tvD, **params, quiet=True)
+
+        # Store
+        dev_score = predict(net, tvD, return_acc=True)
+        results[dev_score] = params
 
     # Turn shuffle off when computing predictions
-    train_data = DataLoader(dataset=TrainingData(),
-                            batch_size=batch_size, shuffle=False)
-
-    test_data = DataLoader(dataset=TestingData(),
-                           batch_size=batch_size, shuffle=False)
-
-    trP = classes[predict(net, train_data)]
-    print("Training Accuracy: ", 100 * accuracy(trY, trP))
-
-    tsP = classes[predict(net, test_data)]
-    write_csv("neural_net_%d.csv" % hidden_size, tsP)
+    # tsD = DataLoader(Sketches(tsX), batch_size, shuffle=False)
+    # tsP = classes[predict(net, tsD)]
+    # write_csv("neural_net_%d.csv" % hidden_size, tsP)
