@@ -36,29 +36,46 @@ class Sketches(Dataset):
 
 
 class ConvNet(nn.Module):
-    def __init__(self):
+    def __init__(self, channels=10):
         super(ConvNet, self).__init__()
 
-        channels = 30
-        self.conv = nn.Conv2d(1, channels, kernel_size=5)
+        self.c1 = nn.Sequential(
+            nn.Conv2d(1, 32, kernel_size=5),
+            nn.ReLU(),
+            nn.MaxPool2d(4),
+            nn.Dropout(.1),
+        )
 
-        # Reduce image size by 1/4th ?
-        self.mp = nn.MaxPool2d(kernel_size=4)
+        # nn.MaxPool2d(2)
+        # padding=2
+        # nn.BatchNorm2d(16)
 
-        img_size = (28 + 1 - self.conv.kernel_size[0]) // 4
-        self.fc = nn.Linear(channels * (img_size ** 2), 20)
+        # self.c2 = nn.Sequential(
+        #     nn.Conv2d(32, 4, kernel_size=2),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(2),
+        #     nn.Dropout(.1),
+        # )
+
+        # img_size = (28 + 1 - self.conv.kernel_size[0]) // 4
+        self.fc1 = nn.Sequential(
+            nn.Linear(32 * (6 ** 2), 256),
+            nn.ReLU(),
+            # nn.Dropout(.1),
+        )
+
+        self.fc2 = nn.Linear(256, 20)
 
     def forward(self, x):
         in_size = x.size(0)
         # print(x.size())
-        x = self.conv(x)
+        x = self.c1(x)
+        # x = self.c2(x)
         # print(x.size())
-        x = self.mp(x)
-        # print(x.size())
-        x = F.relu(x)
         x = x.view(in_size, -1)
         # print(x.size())
-        x = self.fc(x)
+        x = self.fc1(x)
+        x = self.fc2(x)
         # print(x.size())
         # exit()
         return x
@@ -140,11 +157,12 @@ def predict(net, data, return_acc=False):
 
 if __name__ == '__main__':
 
-    # Hyper Parameters
+    # Hyper Parameters'
+    channels = 15
     max_epochs = 100
     learning_rate = 0.01
 
-    batch_size = 250
+    batch_size = 100
 
     # Data
     trX_, tvX_, trY_, tvY_ = train_test_split(trX, trYi, test_size=0.3)
@@ -152,7 +170,7 @@ if __name__ == '__main__':
     tvD = DataLoader(Sketches(tvX_, tvY_), batch_size, shuffle=False)
 
     # Build the network
-    net = ConvNet()
+    net = ConvNet(channels)
 
     print(
         "max_epochs: ", max_epochs,
