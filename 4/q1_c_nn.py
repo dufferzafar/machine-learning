@@ -1,6 +1,6 @@
-import sys
-
 import numpy as np
+
+from sklearn.model_selection import train_test_split
 
 import torch
 import torch.nn as nn
@@ -10,6 +10,7 @@ from torch.utils.data import Dataset, DataLoader
 from torch.autograd import Variable
 
 from common import load_data, accuracy, write_csv
+
 
 # Hyper Parameters
 hidden_size = 500
@@ -21,22 +22,23 @@ trX, trY, tsX = load_data()
 classes, trYi = np.unique(trY, return_inverse=True)
 
 
-class TrainingData(Dataset):
+class Sketches(Dataset):
+
+    def __init__(self, X, Y=None):
+        self.X = X
+        self.Y = Y
 
     def __len__(self):
-        return len(trX)
+        return len(self.X)
 
     def __getitem__(self, idx):
-        return trX[idx] / 255, trYi[idx]
+        x = self.X[idx] / 255
+        y = -1
 
+        if self.Y is not None:
+            y = self.Y[idx]
 
-class TestingData(Dataset):
-
-    def __len__(self):
-        return len(tsX)
-
-    def __getitem__(self, idx):
-        return tsX[idx] / 255, -1
+        return x, y
 
 
 class Net(nn.Module):
@@ -52,16 +54,14 @@ class Net(nn.Module):
         return x
 
 
-def train(net, data):
+def train(net, train_data, dev_data=None):
 
     # Loss and Optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
-    # print(len(data), batch_size)
-
     for epoch in range(max_epochs):
-        for i, (images, labels) in enumerate(data):
+        for i, (images, labels) in enumerate(train_data):
 
             # Convert torch tensor to Variable
             images = Variable(images.view(-1, 28 * 28).float())
@@ -82,32 +82,56 @@ def train(net, data):
             # Update weights
             optimizer.step()
 
-            if (i + 1) % 100 == 0:
-                sys.stdout.write('\rEpoch [%d/%d], Batch [%d/%d], Loss: %.5f'
-                                 % (epoch + 1, max_epochs, (i + 1) // 100, len(data) // 100, loss.data[0]))
+        print(
+            "\r",
+            "Epoch [%d/%d]" % (epoch + 1, max_epochs),
+            "| Train Loss: %.4f" % loss.data[0],
+            "| Train Acc: %.4f" % predict(net, train_data, return_acc=True),
+            "| Dev Acc: %.4f" % predict(net, dev_data, return_acc=True),
+            sep=" ",
+            end="",
+        )
 
     print("\n")
 
 
-def predict(net, data):
+def predict(net, data, return_acc=False):
+
     predictions = []
-    for images, _ in data:
+    correct, total = 0, 0
+
+    for images, labels in data:
         images = Variable(images.view(-1, 28 * 28).float())
         outputs = net(images)
+
         _, batch_predictions = torch.max(outputs.data, 1)
 
         predictions.extend(list(batch_predictions))
 
-    return predictions
+        total += labels.size(0)
+        correct += (batch_predictions == labels).sum()
+
+    if return_acc:
+        return correct / total
+    else:
+        return predictions
 
 
 if __name__ == '__main__':
-    train_data = DataLoader(dataset=TrainingData(),
-                            batch_size=batch_size, shuffle=True)
 
+    trX_, tvX_, trY_, tvY_ = train_test_split(trX, trYi, test_size=0.3)
+
+    trD = DataLoader(Sketches(trX_, trY_),
+                     batch_size, shuffle=True)
+
+    tvD = DataLoader(Sketches(tvX_, tvY_),
+                     batch_size, shuffle=False)
+
+    # Build the network
     net = Net(784, hidden_size, 20)
 
-    train(net, train_data)
+    # Train it
+    train(net, trD, tvD)
 
     # Turn shuffle off when computing predictions
     train_data = DataLoader(dataset=TrainingData(),
