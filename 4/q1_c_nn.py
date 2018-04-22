@@ -12,7 +12,13 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from torch.autograd import Variable
 
-from common import load_data, accuracy, write_csv
+from skorch.net import NeuralNetClassifier
+
+from common import load_data, write_csv
+
+
+trX, trY, tsX = load_data()
+classes, trYi = np.unique(trY, return_inverse=True)
 
 
 class Sketches(Dataset):
@@ -35,15 +41,18 @@ class Sketches(Dataset):
 
 
 class Net(nn.Module):
-    def __init__(self, input_size, hidden_size, num_classes):
+    def __init__(self, hidden_size=50):
         super(Net, self).__init__()
-        self.l1 = nn.Linear(input_size, hidden_size)
-        self.l2 = nn.Linear(hidden_size, num_classes)
+        self.l1 = nn.Linear(784, hidden_size)
+        self.l2 = nn.Linear(hidden_size, 20)
+        # self.dropout = nn.Dropout(0.1)
 
     def forward(self, x):
         x = self.l1(x)
         x = F.sigmoid(x)
+        # x = self.dropout(x)
         x = self.l2(x)
+        x = F.log_softmax(x, dim=0)
         return x
 
 
@@ -51,7 +60,8 @@ def train(net, train_data, dev_data=None,
           max_epochs=100, learning_rate=0.001, quiet=False):
 
     # Loss and Optimizer
-    criterion = nn.CrossEntropyLoss()
+    # criterion = nn.CrossEntropyLoss()
+    criterion = nn.NLLLoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
     for epoch in range(max_epochs):
@@ -79,13 +89,17 @@ def train(net, train_data, dev_data=None,
         if not quiet:
             print(
                 "\r",
-                "Epoch [%d/%d]" % (epoch + 1, max_epochs),
+                "Epoch [%3d/%3d]" % (epoch + 1, max_epochs),
                 "| Train Loss: %.4f" % loss.data[0],
                 "| Train Acc: %.4f" % predict(net, train_data, return_acc=True),
                 "| Dev Acc: %.4f" % predict(net, dev_data, return_acc=True),
                 sep=" ",
                 end="",
+                flush=True,
             )
+
+        # if not quiet and not (epoch + 1) % 10:
+        #     print("\n")
 
     if not quiet:
         print("\n")
@@ -113,10 +127,40 @@ def predict(net, data, return_acc=False):
         return predictions
 
 
-if __name__ == '__main__':
+def simple_run():
+    # Hyper Parameters
+    hidden_size = 1000
+    max_epochs = 30
+    learning_rate = 0.0005
 
-    trX, trY, tsX = load_data()
-    classes, trYi = np.unique(trY, return_inverse=True)
+    batch_size = 100
+
+    # Data
+    trX_, tvX_, trY_, tvY_ = train_test_split(trX, trYi, test_size=0.3)
+    trD = DataLoader(Sketches(trX_, trY_), batch_size, shuffle=True)
+    tvD = DataLoader(Sketches(tvX_, tvY_), batch_size, shuffle=False)
+
+    # Build the network
+    net = Net(hidden_size)
+
+    print(
+        "hidden_size: ", hidden_size,
+        "max_epochs: ", max_epochs,
+        "learning_rate: ", learning_rate,
+        "batch_size: ", batch_size
+    )
+    print(net)
+
+    # Train it
+    train(net, trD, tvD, max_epochs, learning_rate)
+
+    # Turn shuffle off when computing predictions
+    tsD = DataLoader(Sketches(tsX), batch_size, shuffle=False)
+    tsP = classes[predict(net, tsD)]
+    write_csv("neural_net_%d.csv" % hidden_size, tsP)
+
+
+def grid_search():
 
     trX_, tvX_, trY_, tvY_ = train_test_split(trX, trYi, test_size=0.3)
 
@@ -128,11 +172,6 @@ if __name__ == '__main__':
 
     tvD = DataLoader(Sketches(tvX_, tvY_),
                      batch_size, shuffle=False)
-
-    # Hyper Parameters
-    # hidden_size = 120
-    # max_epochs = 50
-    # learning_rate = 0.001
 
     parameters = {
         'hidden_size': range(50, 100, 10),
@@ -146,7 +185,7 @@ if __name__ == '__main__':
         print("Training net", params)
 
         # Build the network
-        net = Net(784, params.pop("hidden_size"), 20)
+        net = Net(params.pop("hidden_size"))
 
         # Train it
         train(net, trD, tvD, **params, quiet=True)
@@ -155,7 +194,27 @@ if __name__ == '__main__':
         dev_score = predict(net, tvD, return_acc=True)
         results[dev_score] = params
 
-    # Turn shuffle off when computing predictions
-    # tsD = DataLoader(Sketches(tsX), batch_size, shuffle=False)
-    # tsP = classes[predict(net, tsD)]
-    # write_csv("neural_net_%d.csv" % hidden_size, tsP)
+
+def use_skorch():
+
+    net = NeuralNetClassifier(
+        Net,
+        criterion=nn.CrossEntropyLoss,
+        optimizer=torch.optim.Adam,
+        train_split=None,
+        max_epochs=10,
+        lr=0.1,
+    )
+
+    trX_ = trX.astype(np.float32)
+    trYi_ = trYi.astype(np.int64)
+
+    net.fit(trX_, trYi_, verbose=True)
+
+    # y_proba = net.predict_proba(X)
+
+
+if __name__ == '__main__':
+    # grid_search()
+    # use_skorch()
+    simple_run()
