@@ -36,14 +36,14 @@ class Sketches(Dataset):
 
 
 class ConvNet(nn.Module):
-    def __init__(self, channels=10):
+    def __init__(self, channels=20):
         super(ConvNet, self).__init__()
 
         self.c1 = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=5),
-            nn.ReLU(),
+            nn.Conv2d(1, channels, kernel_size=5),
             nn.MaxPool2d(4),
-            nn.Dropout(.1),
+            nn.ReLU(),
+            # nn.Dropout(.1),
         )
 
         # nn.MaxPool2d(2)
@@ -51,7 +51,7 @@ class ConvNet(nn.Module):
         # nn.BatchNorm2d(16)
 
         # self.c2 = nn.Sequential(
-        #     nn.Conv2d(32, 4, kernel_size=2),
+        #     nn.Conv2d(channels, 4, kernel_size=2),
         #     nn.ReLU(),
         #     nn.MaxPool2d(2),
         #     nn.Dropout(.1),
@@ -59,12 +59,12 @@ class ConvNet(nn.Module):
 
         # img_size = (28 + 1 - self.conv.kernel_size[0]) // 4
         self.fc1 = nn.Sequential(
-            nn.Linear(32 * (6 ** 2), 256),
-            nn.ReLU(),
+            nn.Linear(channels * (6 ** 2), 20),
+            # nn.ReLU(),
             # nn.Dropout(.1),
         )
 
-        self.fc2 = nn.Linear(256, 20)
+        # self.fc2 = nn.Linear(256, 20)
 
     def forward(self, x):
         in_size = x.size(0)
@@ -75,7 +75,7 @@ class ConvNet(nn.Module):
         x = x.view(in_size, -1)
         # print(x.size())
         x = self.fc1(x)
-        x = self.fc2(x)
+        # x = self.fc2(x)
         # print(x.size())
         # exit()
         return x
@@ -155,19 +155,23 @@ def predict(net, data, return_acc=False):
         return predictions
 
 
-if __name__ == '__main__':
+def simple_run(split=True):
 
     # Hyper Parameters'
-    channels = 15
+    channels = 20
     max_epochs = 100
-    learning_rate = 0.01
+    learning_rate = 0.001
 
-    batch_size = 100
+    batch_size = 250
 
     # Data
-    trX_, tvX_, trY_, tvY_ = train_test_split(trX, trYi, test_size=0.3)
-    trD = DataLoader(Sketches(trX_, trY_), batch_size, shuffle=True)
-    tvD = DataLoader(Sketches(tvX_, tvY_), batch_size, shuffle=False)
+    if split:
+        trX_, tvX_, trY_, tvY_ = train_test_split(trX, trYi, test_size=0.3)
+        trD = DataLoader(Sketches(trX_, trY_), batch_size, shuffle=True)
+        tvD = DataLoader(Sketches(tvX_, tvY_), batch_size, shuffle=False)
+    else:
+        trD = DataLoader(Sketches(trX, trYi), batch_size, shuffle=True)
+        tvD = None
 
     # Build the network
     net = ConvNet(channels)
@@ -186,3 +190,8 @@ if __name__ == '__main__':
     tsD = DataLoader(Sketches(tsX), batch_size, shuffle=False)
     tsP = classes[predict(net, tsD)]
     write_csv("conv_net.csv", tsP)
+
+
+if __name__ == '__main__':
+    simple_run(split=False)
+    # simple_run(split=True)
