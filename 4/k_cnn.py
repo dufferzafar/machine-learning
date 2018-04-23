@@ -80,18 +80,24 @@ def keras_deeper_cnn(input_shape):
 
     net = Sequential()
 
-    net.add(Conv2D(32, kernel_size=(3, 3),
-                   activation='relu',
+    net.add(Conv2D(64, (8, 8), activation='relu',
                    input_shape=input_shape))
 
-    net.add(Conv2D(64, (3, 3), activation='relu'))
+    net.add(Conv2D(192, (5, 5), activation='relu'))
     net.add(MaxPooling2D(pool_size=(2, 2)))
-    net.add(Dropout(0.25))
+    net.add(Dropout(0.2))
+
+    net.add(Conv2D(384, (2, 2), activation='relu'))
+    net.add(Conv2D(256, (2, 2), activation='relu'))
+    net.add(Conv2D(256, (2, 2), activation='relu'))
 
     net.add(Flatten())
 
-    net.add(Dense(128, activation='relu'))
+    net.add(Dropout(0.3))
+    net.add(Dense(2048, activation='relu'))
+
     net.add(Dropout(0.5))
+    net.add(Dense(2048, activation='relu'))
 
     net.add(Dense(20, activation='softmax'))
 
@@ -125,6 +131,7 @@ if __name__ == '__main__':
         trX, trYi, tsX
     )
 
+    # net = keras_deeper_cnn(input_shape)
     # net = keras_mnist_cnn(input_shape)
     net = keras_basic_cnn(input_shape)
 
@@ -134,13 +141,21 @@ if __name__ == '__main__':
         metrics=['accuracy']
     )
 
+    callbacks_list = [
+        keras.callbacks.EarlyStopping(
+            monitor='val_acc', min_delta=0.0001,
+            patience=3, verbose=1, mode='auto'
+        )
+    ]
+
     net.fit(
         x_train, y_train,
         batch_size=batch_size,
         epochs=epochs,
         verbose=2,
+        callbacks=callbacks_list,
         validation_data=(x_val, y_val)
     )
 
     tsP = classes[net.predict_classes(x_test)]
-    write_csv("keras_basic_cnn.csv", tsP)
+    write_csv("keras_deeper_cnn.csv", tsP)
