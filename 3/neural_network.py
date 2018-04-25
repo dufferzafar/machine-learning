@@ -157,7 +157,7 @@ class NeuralNetwork():
         return dw, db
 
     def train(self, X, y, eta=0.05, batch_size=100,
-              epochs=100, error_threshold=10**-5, valid_data=[]):
+              epochs=100, error_threshold=10**-6, valid_data=[]):
         """
         Train the network using mini-batch gradient descent.
         """
@@ -226,7 +226,7 @@ class NeuralNetwork():
 
             # Compute error on training data data
             error_old = error
-            error = self.total_error(X, y)
+            error = self.total_error(X, y, avg=True)
 
             sys.stdout.write("Error: %.5f" % error)
 

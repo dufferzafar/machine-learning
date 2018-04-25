@@ -45,9 +45,9 @@ def save_plot(nodecounts, accuracies, fn, invert=False):
 
     plt.legend(
         [
-            'Train: %.2f' % accuracies["train"][best_pos],
-            'Test: %.2f' % accuracies["test"][best_pos],
-            'Valid: %.2f' % accuracies["valid"][best_pos],
+            'Train: %.1f' % accuracies["train"][best_pos],
+            'Test: %.1f' % accuracies["test"][best_pos],
+            'Valid: %.1f' % accuracies["valid"][best_pos],
         ]
     )
     plt.ylabel('Accuracy')
@@ -102,9 +102,9 @@ def part_a():
     print("Tree node count", dtree.node_count())
 
     print()
-    print("Accuracy (training data)", dtree.score(train_data))
-    print("Accuracy (testing data)", dtree.score(test_data))
-    print("Accuracy (validation data)", dtree.score(valid_data))
+    print("Accuracy (training data): %.1f" % dtree.score(train_data))
+    print("Accuracy (testing data): %.1f" % dtree.score(test_data))
+    print("Accuracy (validation data): %.1f" % dtree.score(valid_data))
 
     print()
     print("Calculating accuracy at different number of nodes")
@@ -123,6 +123,10 @@ def part_b():
         dtree = DecisionTree(train_data)
 
     print()
+    print("Tree height", dtree.height())
+    print("Tree node count", dtree.node_count())
+
+    print()
     print("Pruning the tree")
 
     nc, acc = dtree.prune_brute(train_data, test_data, valid_data)
@@ -133,9 +137,9 @@ def part_b():
     print("Tree node count", dtree.node_count())
 
     print()
-    print("Accuracy (training data)", dtree.score(train_data))
-    print("Accuracy (testing data)", dtree.score(test_data))
-    print("Accuracy (validation data)", dtree.score(valid_data))
+    print("Accuracy (training data): %.1f" % dtree.score(train_data))
+    print("Accuracy (testing data): %.1f" % dtree.score(test_data))
+    print("Accuracy (validation data): %.1f" % dtree.score(valid_data))
 
     print()
     print("Calculating accuracy at different number of nodes")
@@ -158,9 +162,9 @@ def part_c():
     print("Tree node count", dtree.node_count())
 
     print()
-    print("Accuracy (training data)", dtree.score(train_data))
-    print("Accuracy (testing data)", dtree.score(test_data))
-    print("Accuracy (validation data)", dtree.score(valid_data))
+    print("Accuracy (training data): %.1f" % dtree.score(train_data))
+    print("Accuracy (testing data): %.1f" % dtree.score(test_data))
+    print("Accuracy (validation data): %.1f" % dtree.score(valid_data))
 
     print()
     print("Numerical attributes that are split multiple times:")
@@ -188,11 +192,12 @@ def part_d():
     clf.fit(train_data[:, 1:], train_data[:, 0])
 
     print("\nsklearn's Decision Tree\n")
-    print("Accuracy", 100 * clf.score(valid_data[:, 1:], valid_data[:, 0]))
-    print("Depth", clf.tree_.max_depth)
-    print("Node Count", clf.tree_.node_count)
+    print("Accuracy: %.1f" % (100 * clf.score(valid_data[:, 1:], valid_data[:, 0])))
 
-    print("\nPlotting the effect of maximum depth on accuracy")
+    print("Tree height", clf.tree_.max_depth)
+    print("Tree node count", clf.tree_.node_count)
+
+    print("\nPlotting the effect of max_depth on accuracy")
 
     accuracy = []
     depths = range(3, 30)
@@ -204,11 +209,46 @@ def part_d():
 
     plt.figure(figsize=(6 * 1.5, 4 * 1.5))
     plt.plot(depths, accuracy, linestyle='--', marker='o')
-    plt.xlabel("Maximum depth of tree")
+    plt.xlabel("max_depth")
     plt.ylabel("Validation accuracy")
-    plt.show()
+    plt.savefig("output/dtree_part_d_scikit_max_depth.png")
+    plt.close()
+
+    print("\nPlotting the effect of min_samples_split on accuracy")
+    accuracy = []
+    splits = range(5, 200, 5)
+    for d in splits:
+        clf = DecisionTreeClassifier(criterion="entropy", random_state=0,
+                                     min_samples_split=d)
+        clf.fit(train_data[:, 1:], train_data[:, 0])
+        accuracy.append(100 * clf.score(valid_data[:, 1:], valid_data[:, 0]))
+
+    plt.figure(figsize=(6 * 1.5, 4 * 1.5))
+    plt.plot(splits, accuracy, linestyle='--', marker='o')
+    plt.xlabel("min_samples_split")
+    plt.ylabel("Validation accuracy")
+    plt.savefig("output/dtree_part_d_scikit_min_samples_split.png")
+    plt.close()
+
+    print("\nPlotting the effect of min_samples_leaf on accuracy")
+    accuracy = []
+    splits = range(5, 200, 5)
+    for d in splits:
+        clf = DecisionTreeClassifier(criterion="entropy", random_state=0,
+                                     min_samples_leaf=d)
+        clf.fit(train_data[:, 1:], train_data[:, 0])
+        accuracy.append(100 * clf.score(valid_data[:, 1:], valid_data[:, 0]))
+
+    plt.figure(figsize=(6 * 1.5, 4 * 1.5))
+    plt.plot(splits, accuracy, linestyle='--', marker='o')
+    plt.xlabel("min_samples_leaf")
+    plt.ylabel("Validation accuracy")
+    plt.savefig("output/dtree_part_d_scikit_min_samples_leaf.png")
+    plt.close()
 
     print("\nNow running a grid search to find best parameters")
+
+    exit()
 
     # Range of parameters to find best accuracy over
     parameters = {
@@ -272,7 +312,9 @@ def part_e():
 if __name__ == '__main__':
 
     part_a()
-    part_b()
+    # part_b()
+
+    # part_c()
 
     # part_d()
     # part_e()

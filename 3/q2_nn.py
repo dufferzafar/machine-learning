@@ -59,17 +59,24 @@ def part_b_1():
     print()
     print("Part B 1")
 
+    print()
+    print("Using sklearn's Logistic Regression")
+
     clf = LogisticRegression()
     clf.fit(toy_trainX, toy_trainY)
 
-    print("Training Accuracy", 100 * clf.score(toy_trainX, toy_trainY))
-    print("Testing Accuracy", 100 * clf.score(toy_testX, toy_testY))
+    tr_acc = 100 * clf.score(toy_trainX, toy_trainY)
+    ts_acc = 100 * clf.score(toy_testX, toy_testY)
+
+    print()
+    print("Training Accuracy: %.2f" % tr_acc)
+    print("Testing Accuracy: %.2f" % ts_acc)
 
     plot_decision_boundary(clf.predict, toy_trainX, toy_trainY,
-                           "Toy Training Data", "b1_train")
+                           "Toy Training Data (%.2f%%)" % tr_acc, "b1_train")
 
     plot_decision_boundary(clf.predict, toy_testX, toy_testY,
-                           "Toy Testing Data", "b1_test")
+                           "Toy Testing Data (%.2f%%)" % ts_acc, "b1_test")
 
 
 def part_b_2():
@@ -81,18 +88,24 @@ def part_b_2():
 
     nn = NeuralNetwork(topo=[2, 5, 1])
 
-    nn.train(toy_trainX, toy_trainY, batch_size=0, epochs=5000, eta=3)
+    nn.train(toy_trainX, toy_trainY, batch_size=0, epochs=5000, eta=5)
 
-    print("Training Accuracy", 100 * nn.score(toy_trainX, toy_trainY))
-    print("Testing Accuracy", 100 * nn.score(toy_testX, toy_testY))
+    tr_acc = 100 * nn.score(toy_trainX, toy_trainY)
+    ts_acc = 100 * nn.score(toy_testX, toy_testY)
 
+    print()
+    print("Training Accuracy: %.2f" % tr_acc)
+    print("Testing Accuracy: %.2f" % ts_acc)
+
+    print()
     print("Generating plot for training data")
     plot_decision_boundary(nn.predict, toy_trainX, toy_trainY,
-                           "Toy Training Data", "b2_train_5")
+                           "Toy Training Data (%.2f%%)" % tr_acc, "b2_train_5")
 
+    print()
     print("Generating plot for testing data")
     plot_decision_boundary(nn.predict, toy_testX, toy_testY,
-                           "Toy Testing Data", "b2_test_5")
+                           "Toy Testing Data (%.2f%%)" % ts_acc, "b2_test_5")
 
 
 def part_b_3():
@@ -105,14 +118,14 @@ def part_b_3():
     for hidden_units in [1, 2, 3, 5, 10, 20, 40]:
 
         nn = NeuralNetwork(topo=[2, hidden_units, 1])
-        nn.train(toy_trainX, toy_trainY, eta=0,
-                 batch_size=0, epochs=6000, error_threshold=10**-6)
+        nn.train(toy_trainX, toy_trainY, eta=5,
+                 batch_size=0, epochs=6000, error_threshold=10**-7)
 
         train_acc = 100 * nn.score(toy_trainX, toy_trainY)
         test_acc = 100 * nn.score(toy_testX, toy_testY)
 
-        print("Training Accuracy", train_acc)
-        print("Testing Accuracy", test_acc)
+        print("Training Accuracy: %.2f" % train_acc)
+        print("Testing Accuracy: %.2f" % test_acc)
 
         title = (
             "Toy Testing Data (%d hidden units) | Train: %.2f | Test: %.2f" %
@@ -133,19 +146,23 @@ def part_b_4():
 
     nn = NeuralNetwork(topo=[2, 5, 5, 1])
 
-    nn.train(toy_trainX, toy_trainY, eta=0,
-             batch_size=0, epochs=6000, error_threshold=10**-5)
+    nn.train(toy_trainX, toy_trainY, eta=5,
+             batch_size=0, epochs=6000, error_threshold=10**-7)
 
-    print("Training Accuracy", 100 * nn.score(toy_trainX, toy_trainY))
-    print("Testing Accuracy", 100 * nn.score(toy_testX, toy_testY))
+    tr_acc = 100 * nn.score(toy_trainX, toy_trainY)
+    ts_acc = 100 * nn.score(toy_testX, toy_testY)
+
+    print()
+    print("Training Accuracy: %.2f" % tr_acc)
+    print("Testing Accuracy: %.2f" % ts_acc)
 
     print("Generating plot for training data")
     plot_decision_boundary(nn.predict, toy_trainX, toy_trainY,
-                           "Toy Training Data", "b4_train_5_5")
+                           "Toy Training Data (%.2f%%)" % tr_acc, "b4_train_5_5")
 
     print("Generating plot for testing data")
     plot_decision_boundary(nn.predict, toy_testX, toy_testY,
-                           "Toy Testing Data", "b4_test_5_5")
+                           "Toy Testing Data (%.2f%%)" % ts_acc, "b4_test_5_5")
 
 
 def part_c_1():
@@ -159,7 +176,7 @@ def part_c_1():
 
     nn = NeuralNetwork(topo=[784, 1])
     nn.train(trainX, trainY, eta=0,
-             epochs=500, error_threshold=10**-2)
+             epochs=500, error_threshold=10**-5)
 
     print("Training Accuracy", 100 * nn.score(trainX, trainY))
     print("Testing Accuracy", 100 * nn.score(testX, testY))
@@ -176,7 +193,7 @@ def part_c_2():
 
     nn = NeuralNetwork(topo=[784, 100, 1])
     nn.train(trainX, trainY, eta=0,
-             epochs=500, error_threshold=10**-2)
+             epochs=100, error_threshold=10**-5)
 
     print("Training Accuracy", 100 * nn.score(trainX, trainY))
     print("Testing Accuracy", 100 * nn.score(testX, testY))
@@ -193,7 +210,7 @@ def part_c_3():
 
     nn = NeuralNetwork(topo=[784, 100, 1], use_relu=True)
     nn.train(trainX, trainY, eta=0,
-             epochs=500, error_threshold=10**-2)
+             epochs=100, error_threshold=10**-5)
 
     print("Training Accuracy", 100 * nn.score(trainX, trainY))
     print("Testing Accuracy", 100 * nn.score(testX, testY))
@@ -206,6 +223,6 @@ if __name__ == '__main__':
     # part_b_4()
 
     # part_c_1()
-    part_c_2()
+    # part_c_2()
 
-    # part_c_3()
+    part_c_3()
