@@ -25,6 +25,8 @@ def cluster_labels(km, Y):
 
 
 def part_a(max_iter=300):
+
+    print()
     print("Training Kmeans (max_iter=%d)" % max_iter)
 
     kmeans = KMeans(n_init=10, n_clusters=20,
@@ -49,7 +51,8 @@ def part_b():
 
 def plot_accuracies():
     max_iter = [10, 20, 30, 40, 50]
-    # Values by running part_b; and kaggle!
+
+    # Values found by running part_b; and kaggle!
     plt.plot(max_iter, [0.34652, 0.35422, 0.34787, 0.34687, 0.34600])
     plt.plot(max_iter, [0.34572, 0.35220, 0.34515, 0.34645, 0.34520])
 
@@ -57,10 +60,14 @@ def plot_accuracies():
     plt.ylabel("Accuracy")
 
     plt.legend(["Train", "Test"])
-    plt.show()
+
+    plt.savefig("output/q1_a_kmeans_acc.png")
+    plt.close()
 
 
 if __name__ == '__main__':
-    # part_a()
-    # part_b()
+
+    part_a()
+    part_b()
+
     plot_accuracies()
