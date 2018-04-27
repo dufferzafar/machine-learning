@@ -12,8 +12,6 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from torch.autograd import Variable
 
-from skorch.net import NeuralNetClassifier
-
 from common import load_data, write_csv
 
 
@@ -45,22 +43,24 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.l1 = nn.Linear(784, hidden_size)
         self.l2 = nn.Linear(hidden_size, 20)
-        # self.dropout = nn.Dropout(0.1)
 
     def forward(self, x):
         x = self.l1(x)
         x = F.sigmoid(x)
-        # x = self.dropout(x)
+
         x = self.l2(x)
         x = F.log_softmax(x, dim=0)
+
         return x
 
 
 def train(net, train_data, dev_data=None,
           max_epochs=100, learning_rate=0.001, quiet=False):
 
-    # Loss and Optimizer
     # criterion = nn.CrossEntropyLoss()
+    # optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
+
+    # Loss and Optimizer
     criterion = nn.NLLLoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
@@ -127,7 +127,8 @@ def predict(net, data, return_acc=False):
         return predictions
 
 
-def simple_run():
+def simple_run(split=True):
+
     # Hyper Parameters
     hidden_size = 1000
     max_epochs = 30
@@ -136,19 +137,27 @@ def simple_run():
     batch_size = 100
 
     # Data
-    trX_, tvX_, trY_, tvY_ = train_test_split(trX, trYi, test_size=0.3)
-    trD = DataLoader(Sketches(trX_, trY_), batch_size, shuffle=True)
-    tvD = DataLoader(Sketches(tvX_, tvY_), batch_size, shuffle=False)
+    if split:
+        trX_, tvX_, trY_, tvY_ = train_test_split(trX, trYi, test_size=0.3)
+        trD = DataLoader(Sketches(trX_, trY_), batch_size, shuffle=True)
+        tvD = DataLoader(Sketches(tvX_, tvY_), batch_size, shuffle=False)
+    else:
+        trD = DataLoader(Sketches(trX, trYi), batch_size, shuffle=True)
+        tvD = None
 
     # Build the network
     net = Net(hidden_size)
 
     print(
+        "\n",
+        "Hyperparameters:",
         "hidden_size: ", hidden_size,
         "max_epochs: ", max_epochs,
         "learning_rate: ", learning_rate,
-        "batch_size: ", batch_size
+        "batch_size: ", batch_size,
+        "\n",
     )
+
     print(net)
 
     # Train it
@@ -195,26 +204,8 @@ def grid_search():
         results[dev_score] = params
 
 
-def use_skorch():
-
-    net = NeuralNetClassifier(
-        Net,
-        criterion=nn.CrossEntropyLoss,
-        optimizer=torch.optim.Adam,
-        train_split=None,
-        max_epochs=10,
-        lr=0.1,
-    )
-
-    trX_ = trX.astype(np.float32)
-    trYi_ = trYi.astype(np.int64)
-
-    net.fit(trX_, trYi_, verbose=True)
-
-    # y_proba = net.predict_proba(X)
-
-
 if __name__ == '__main__':
+
+    simple_run(split=True)
+
     # grid_search()
-    # use_skorch()
-    simple_run()
