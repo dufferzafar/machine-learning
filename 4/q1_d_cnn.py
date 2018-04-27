@@ -1,6 +1,9 @@
 import numpy as np
 
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import (
+    ParameterGrid,
+    train_test_split,
+)
 
 import torch
 import torch.nn as nn
@@ -41,6 +44,9 @@ class ConvNet(nn.Module):
         super(ConvNet, self).__init__()
 
         self.conv = nn.Conv2d(1, channels, kernel_size=5)
+
+        # TODO: MaxPool Kernel 2x2 ?
+        # self.mp = nn.MaxPool2d(kernel_size=2)
 
         # Reduce image size by 1/4th ?
         self.mp = nn.MaxPool2d(kernel_size=4)
@@ -98,7 +104,8 @@ def train(net, train_data, dev_data=None,
                 # "\r",
                 "Epoch [%3d/%3d]" % (epoch + 1, max_epochs),
                 "| Train Loss: %.4f" % loss.data[0],
-                "| Train Acc: %.4f" % predict(net, train_data, return_acc=True),
+                "| Train Acc: %.4f" % predict(
+                    net, train_data, return_acc=True),
                 "| Dev Acc: %.4f" % predict(net, dev_data, return_acc=True),
                 # sep=" ",
                 # end="",
@@ -177,8 +184,48 @@ def simple_run(split=True):
     write_csv("conv_net.csv", tsP)
 
 
+def grid_search():
+
+    trX_, tvX_, trY_, tvY_ = train_test_split(trX, trYi, test_size=0.3)
+
+    # Data
+    batch_size = 100
+
+    trD = DataLoader(Sketches(trX_, trY_),
+                     batch_size, shuffle=True)
+
+    tvD = DataLoader(Sketches(tvX_, tvY_),
+                     batch_size, shuffle=False)
+
+    # TODO: Grid search over conv layer kernel size?
+    parameters = {
+        'channels': [10, 20, 25, 35, 40],
+        'max_epochs': [75],
+        'learning_rate': [0.005, 0.001],
+    }
+
+    results = {}
+    for params in ParameterGrid(parameters):
+
+        print("Training net", params)
+
+        # Build the network
+        net = ConvNet(params.pop("channels"))
+
+        print(net)
+
+        # Train it
+        train(net, trD, tvD, **params, quiet=True)
+
+        # Store
+        dev_score = predict(net, tvD, return_acc=True)
+        results[dev_score] = params
+
+
 if __name__ == '__main__':
 
-    simple_run(split=True)
+    # simple_run(split=True)
 
     # simple_run(split=False)
+
+    grid_search()
