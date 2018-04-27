@@ -2,7 +2,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.svm import SVC
 
@@ -13,10 +12,11 @@ from common import load_data, write_csv
 trX, trY, tsX = load_data()
 classes, trYi = np.unique(trY, return_inverse=True)
 
-svm_pipeline = Pipeline([
-    # Normalize data to zero mean & unit variance
-    ('scaler', StandardScaler()),
+# Scale the data
+trX /= 255
+tsX /= 255
 
+svm_pipeline = Pipeline([
     # Project data down to 50 principal components
     ('pca', PCA(n_components=50)),
 
