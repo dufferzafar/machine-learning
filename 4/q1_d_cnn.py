@@ -36,46 +36,29 @@ class Sketches(Dataset):
 
 
 class ConvNet(nn.Module):
-    def __init__(self, channels=20):
+
+    def __init__(self, channels=32):
         super(ConvNet, self).__init__()
 
-        self.c1 = nn.Sequential(
-            nn.Conv2d(1, channels, kernel_size=5),
-            nn.MaxPool2d(4),
-            nn.ReLU(),
-            # nn.Dropout(.1),
-        )
+        self.conv = nn.Conv2d(1, channels, kernel_size=5)
 
-        # nn.MaxPool2d(2)
-        # padding=2
-        # nn.BatchNorm2d(16)
+        # Reduce image size by 1/4th ?
+        self.mp = nn.MaxPool2d(kernel_size=4)
 
-        # self.c2 = nn.Sequential(
-        #     nn.Conv2d(channels, 4, kernel_size=2),
-        #     nn.ReLU(),
-        #     nn.MaxPool2d(2),
-        #     nn.Dropout(.1),
-        # )
-
-        # img_size = (28 + 1 - self.conv.kernel_size[0]) // 4
-        self.fc1 = nn.Sequential(
-            nn.Linear(channels * (6 ** 2), 20),
-            # nn.ReLU(),
-            # nn.Dropout(.1),
-        )
-
-        # self.fc2 = nn.Linear(256, 20)
+        img_size = (28 + 1 - self.conv.kernel_size[0]) // 4
+        self.fc = nn.Linear(channels * (img_size ** 2), 20)
 
     def forward(self, x):
         in_size = x.size(0)
         # print(x.size())
-        x = self.c1(x)
-        # x = self.c2(x)
+        x = self.conv(x)
         # print(x.size())
+        x = self.mp(x)
+        # print(x.size())
+        x = F.relu(x)
         x = x.view(in_size, -1)
         # print(x.size())
-        x = self.fc1(x)
-        # x = self.fc2(x)
+        x = self.fc(x)
         # print(x.size())
         # exit()
         return x
@@ -115,8 +98,7 @@ def train(net, train_data, dev_data=None,
                 # "\r",
                 "Epoch [%3d/%3d]" % (epoch + 1, max_epochs),
                 "| Train Loss: %.4f" % loss.data[0],
-                "| Train Acc: %.4f" % predict(
-                    net, train_data, return_acc=True),
+                "| Train Acc: %.4f" % predict(net, train_data, return_acc=True),
                 "| Dev Acc: %.4f" % predict(net, dev_data, return_acc=True),
                 # sep=" ",
                 # end="",
@@ -162,7 +144,7 @@ def simple_run(split=True):
     max_epochs = 100
     learning_rate = 0.001
 
-    batch_size = 250
+    batch_size = 256
 
     # Data
     if split:
@@ -177,9 +159,12 @@ def simple_run(split=True):
     net = ConvNet(channels)
 
     print(
+        "\n",
+        "Hyperparameters:",
         "max_epochs: ", max_epochs,
         "learning_rate: ", learning_rate,
-        "batch_size: ", batch_size
+        "batch_size: ", batch_size,
+        "\n",
     )
     print(net)
 
@@ -193,5 +178,7 @@ def simple_run(split=True):
 
 
 if __name__ == '__main__':
-    simple_run(split=False)
-    # simple_run(split=True)
+
+    simple_run(split=True)
+
+    # simple_run(split=False)
