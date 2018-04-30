@@ -6,10 +6,17 @@ from common import write_csv
 
 # Various algorithms and their scores on the test set
 files = {
+    # "keras_vgg_13_918.csv": 0.918,
+    "keras_vgg_13_91867.csv": 0.91867,
+    "keras_vgg_stopped_912.csv": 0.91242,
     "keras_deeper_cnn.csv": 0.90270,
+    "keras_vgg_13_909.csv": 0.909,
+    "keras_vgg_13_899.csv": 0.899,
     "keras_mnist_cnn.csv": 0.87797,
-    "conv_net_854.csv": 0.85422,
-    "pca_200_svm_rbf.csv": 0.83005,
+    # "conv_net_854.csv": 0.85422,
+    # "pca_200_svm_rbf.csv": 0.83005,
+    # "keras_vgg_13_898.csv": 0.898,
+
     # "conv_net_0.7_845.csv": 0.84555,
     # "neural_net_500.csv": 0.78410,
     # "logreg.csv": 0.63092,
