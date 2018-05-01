@@ -91,6 +91,7 @@ def keras_vgg_13():
     net.add(Activation('relu'))
 
     net.add(MaxPooling2D((2, 2), strides=(2, 2)))
+    net.add(Dropout(0.2))
 
     # Block 2
 
@@ -103,6 +104,7 @@ def keras_vgg_13():
     net.add(Activation('relu'))
 
     net.add(MaxPooling2D((2, 2), strides=(2, 2)))
+    net.add(Dropout(0.2))
 
     # Block 3
     net.add(Conv2D(256, (3, 3), padding='same'))
@@ -114,6 +116,7 @@ def keras_vgg_13():
     net.add(Activation('relu'))
 
     net.add(MaxPooling2D((2, 2), strides=(2, 2)))
+    net.add(Dropout(0.2))
 
     # Block 4
     net.add(Conv2D(512, (3, 3), padding='same'))
@@ -125,6 +128,7 @@ def keras_vgg_13():
     net.add(Activation('relu'))
 
     net.add(MaxPooling2D((2, 2), strides=(2, 2)))
+    net.add(Dropout(0.2))
 
     # Block 5
     net.add(Conv2D(512, (3, 3), padding='same'))
@@ -135,13 +139,18 @@ def keras_vgg_13():
     net.add(BatchNormalization())
     net.add(Activation('relu'))
 
+    # Disable this pooling layer
     # net.add(MaxPooling2D((2, 2), strides=(2, 2)))
+    # net.add(Dropout(0.2))
 
-    #
     net.add(Flatten())
 
+    # net.add(Dropout(0.2))
     # net.add(Dense(512, activation='relu'))
+
+    # net.add(Dropout(0.2))
     # net.add(Dense(512, activation='relu'))
+
     net.add(Dense(20, activation='softmax'))
 
     return net
