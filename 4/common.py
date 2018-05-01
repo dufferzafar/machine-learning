@@ -6,6 +6,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
+def normalize(data):
+    return (data - data.mean(axis=0)) / (data.std(axis=0))
+
+
 def load_data():
     """Load training & test data."""
 
