@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
 from sklearn.svm import SVC
@@ -13,10 +14,13 @@ trX, trY, tsX = load_data()
 classes, trYi = np.unique(trY, return_inverse=True)
 
 # Scale the data
-trX /= 255
-tsX /= 255
+# trX /= 255
+# tsX /= 255
 
 svm_pipeline = Pipeline([
+    # Normalize data to zero mean & unit variance
+    ('scaler', StandardScaler()),
+
     # Project data down to 50 principal components
     ('pca', PCA(n_components=50)),
 
@@ -61,15 +65,17 @@ def pca_svm_linear_grid_search():
 
     print("\nRunning a grid search over C\n")
 
-    params = dict(clf__C=[0.1, 1, 10, 100])
+    params = dict(clf__C=[0.001, 0.01, 0.1, 1, 10, 100])
 
-    grid_search = GridSearchCV(svm_pipeline,
+    grid_search = GridSearchCV(svm_pipeline, n_jobs=-1,
                                param_grid=params, verbose=True)
 
     grid_search.fit(trX, trY)
 
     print("Best Parameter:", grid_search.best_params_)
     print("Best CV Score:", grid_search.best_score_)
+
+    # print(pd.DataFrame(grid_search.cv_results_))
 
 
 def pca_svm_rbf():
