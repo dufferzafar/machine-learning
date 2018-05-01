@@ -4,9 +4,13 @@ import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.cluster import KMeans
 
-from common import load_data, write_csv, accuracy
+from common import load_data, write_csv, accuracy, normalize
 
 trX, trY, tsX = load_data()
+
+# zero mean, unit variance
+trX = normalize(trX)
+tsX = normalize(tsX)
 
 
 def cluster_labels(km, Y):
@@ -67,7 +71,7 @@ def plot_accuracies():
 
 if __name__ == '__main__':
 
-    part_a()
-    part_b()
+    part_a(max_iter=300)
+    # part_b()
 
-    plot_accuracies()
+    # plot_accuracies()
