@@ -57,8 +57,14 @@ def plot_accuracies():
     max_iter = [10, 20, 30, 40, 50]
 
     # Values found by running part_b; and kaggle!
-    plt.plot(max_iter, [0.34652, 0.35422, 0.34787, 0.34687, 0.34600])
-    plt.plot(max_iter, [0.34572, 0.35220, 0.34515, 0.34645, 0.34520])
+
+    # Before normalization
+    # plt.plot(max_iter, [0.34652, 0.35422, 0.34787, 0.34687, 0.34600])
+    # plt.plot(max_iter, [0.34572, 0.35220, 0.34515, 0.34645, 0.34520])
+
+    # After normalization
+    plt.plot(max_iter, [0.36303, 0.33084, 0.34694, 0.34913, 0.34914])
+    plt.plot(max_iter, [0.35893, 0.32784, 0.34022, 0.34700, 0.34698])
 
     plt.xlabel("Maximum number of iterations")
     plt.ylabel("Accuracy")
