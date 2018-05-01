@@ -4,8 +4,9 @@ import cv2
 
 from sklearn.model_selection import train_test_split
 
-from common import load_data, write_csv
+from common import load_data, write_csv, normalize
 
+import keras
 from k_arch import *
 
 
@@ -78,22 +79,22 @@ def keras_load_data(trX, trYi, tsX, clean=True):
     return trX, trYc, tsX
 
 
-def train_keras_cnn(arch=keras_vgg_13):
+def train_keras_cnn(arch_name="keras_alexnet"):
 
     batch_size = 128
-    epochs = 8
+    epochs = 10
 
-    x_train, y_train, x_val, y_val, x_test = keras_load_data(
-        trX, trYi, tsX, normal=False
-    )
+    x_train, y_train, x_val, y_val, x_test = keras_load_data_split(trX, trYi, tsX)
+    # x_train, y_train, x_test = keras_load_data(trX, trYi, tsX)
+
+    arch = globals()[arch_name]
 
     net = arch()
-
-    print(net.summary())
 
     net.compile(
         loss=keras.losses.categorical_crossentropy,
         optimizer=keras.optimizers.Adam(),
+        # optimizer=keras.optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True),
         metrics=['accuracy']
     )
 
@@ -105,10 +106,11 @@ def train_keras_cnn(arch=keras_vgg_13):
     ]
 
     net.fit(
-        x_train, y_train,
+        x_train, y_train, verbose=2,
         batch_size=batch_size,
-        epochs=epochs,
-        verbose=2,
+
+        initial_epoch=0, epochs=epochs,
+
         callbacks=callbacks_list,
         validation_data=(x_val, y_val)
     )
@@ -126,4 +128,4 @@ def save_model(net):
 
 
 if __name__ == '__main__':
-    train_keras_model()
+    train_keras_cnn()
