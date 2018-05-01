@@ -21,7 +21,7 @@ def keras_basic_cnn():
 
     net.add(Flatten())
 
-    net.add(Dense(128, activation='relu'))
+    net.add(Dense(256, activation='relu'))
     net.add(Dense(20, activation='softmax'))
 
     return net
@@ -57,19 +57,19 @@ def keras_alexnet():
 
     net.add(Conv2D(192, (5, 5), activation='relu'))
     net.add(MaxPooling2D(pool_size=(2, 2)))
-    net.add(Dropout(0.2))
+    net.add(Dropout(0.3))
 
     net.add(Conv2D(384, (2, 2), activation='relu'))
     net.add(Conv2D(256, (2, 2), activation='relu'))
-    net.add(Conv2D(256, (2, 2), activation='relu'))
+    net.add(Conv2D(512, (2, 2), activation='relu'))
 
     net.add(Flatten())
 
+    net.add(Dense(2048, activation='relu'))
     net.add(Dropout(0.3))
-    net.add(Dense(2048, activation='relu'))
 
-    net.add(Dropout(0.5))
     net.add(Dense(2048, activation='relu'))
+    net.add(Dropout(0.5))
 
     net.add(Dense(20, activation='softmax'))
 
@@ -147,78 +147,9 @@ def keras_vgg_13():
     return net
 
 
-def keras_vgg_13_small():
-
-    net = Sequential()
-
-    # Block 1
-
-    net.add(Conv2D(32, (3, 3), padding='same',
-                   input_shape=INPUT_SHAPE))
-    net.add(BatchNormalization())
-    net.add(Activation('relu'))
-
-    net.add(Conv2D(32, (3, 3), padding='same'))
-    net.add(BatchNormalization())
-    net.add(Activation('relu'))
-
-    net.add(MaxPooling2D((2, 2), strides=(2, 2)))
-
-    # Block 2
-
-    net.add(Conv2D(64, (3, 3), padding='same'))
-    net.add(BatchNormalization())
-    net.add(Activation('relu'))
-
-    net.add(Conv2D(64, (3, 3), padding='same'))
-    net.add(BatchNormalization())
-    net.add(Activation('relu'))
-
-    net.add(MaxPooling2D((2, 2), strides=(2, 2)))
-
-    # Block 3
-    net.add(Conv2D(128, (3, 3), padding='same'))
-    net.add(BatchNormalization())
-    net.add(Activation('relu'))
-
-    net.add(Conv2D(128, (3, 3), padding='same'))
-    net.add(BatchNormalization())
-    net.add(Activation('relu'))
-
-    net.add(Conv2D(128, (3, 3), padding='same'))
-    net.add(BatchNormalization())
-    net.add(Activation('relu'))
-
-    net.add(MaxPooling2D((2, 2), strides=(2, 2)))
-
-    # Block 4
-    net.add(Conv2D(256, (3, 3), padding='same'))
-    net.add(BatchNormalization())
-    net.add(Activation('relu'))
-
-    net.add(Conv2D(256, (3, 3), padding='same'))
-    net.add(BatchNormalization())
-    net.add(Activation('relu'))
-
-    net.add(Conv2D(256, (3, 3), padding='same'))
-    net.add(BatchNormalization())
-    net.add(Activation('relu'))
-
-    net.add(MaxPooling2D((2, 2), strides=(2, 2)))
-
-    #
-    net.add(Flatten())
-
-    net.add(Dense(512, activation='relu'))
-    net.add(Dense(512, activation='relu'))
-    net.add(Dense(20, activation='softmax'))
-
-    return net
-
-
 # Large number of parameters (no BatchNormalization)
-# Also called keras_vgg (stopped)
-def keras_vgg_13_large():
+# Also called keras_vgg_stopped
+def keras_vgg_19_small():
 
     net = Sequential()
 
@@ -239,6 +170,7 @@ def keras_vgg_13_large():
     net.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
     net.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
     net.add(MaxPooling2D((2, 2), strides=(2, 2)))
+    net.add(Dropout(0.3))
 
     # Block 4
     net.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
@@ -246,14 +178,15 @@ def keras_vgg_13_large():
     net.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
     net.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
     net.add(MaxPooling2D((2, 2), strides=(2, 2)))
+    net.add(Dropout(0.3))
 
     net.add(Flatten())
 
-    net.add(Dense(4096, activation='relu'))
     net.add(Dropout(0.3))
+    net.add(Dense(4096, activation='relu'))
 
-    net.add(Dense(4096, activation='relu'))
     net.add(Dropout(0.3))
+    net.add(Dense(4096, activation='relu'))
 
     net.add(Dense(20, activation='softmax'))
 
@@ -265,7 +198,7 @@ if __name__ == '__main__':
     archs = [
         keras_basic_cnn, keras_mnist_cnn,
         keras_alexnet,
-        keras_vgg_13, keras_vgg_13_small, keras_vgg_13_large
+        keras_vgg_13, keras_vgg_19_small
     ]
 
     for arch in archs:
