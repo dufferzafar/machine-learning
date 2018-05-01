@@ -47,7 +47,6 @@ def keras_mnist_cnn():
     return net
 
 
-# Modeled around Alexnet
 def keras_alexnet():
 
     net = Sequential()
@@ -57,7 +56,6 @@ def keras_alexnet():
 
     net.add(Conv2D(192, (5, 5), activation='relu'))
     net.add(MaxPooling2D(pool_size=(2, 2)))
-    net.add(Dropout(0.3))
 
     net.add(Conv2D(384, (2, 2), activation='relu'))
     net.add(Conv2D(256, (2, 2), activation='relu'))
@@ -65,10 +63,10 @@ def keras_alexnet():
 
     net.add(Flatten())
 
-    net.add(Dense(2048, activation='relu'))
-    net.add(Dropout(0.3))
+    net.add(Dense(4096, activation='relu'))
+    net.add(Dropout(0.5))
 
-    net.add(Dense(2048, activation='relu'))
+    net.add(Dense(4096, activation='relu'))
     net.add(Dropout(0.5))
 
     net.add(Dense(20, activation='softmax'))
@@ -204,8 +202,10 @@ def keras_vgg_19_small():
 
 if __name__ == '__main__':
 
+    from keras.utils import plot_model
+
     archs = [
-        keras_basic_cnn, keras_mnist_cnn,
+        # keras_basic_cnn, keras_mnist_cnn,
         keras_alexnet,
         keras_vgg_13, keras_vgg_19_small
     ]
@@ -218,6 +218,8 @@ if __name__ == '__main__':
         print(name)
 
         net = arch()
-        net.summary()
 
-        net.save("output" + name + ".h5")
+        plot_model(net, to_file=name + ".png", show_shapes=True, show_layer_names=False)
+        # net.summary()
+
+        # net.save("output/" + name + ".h5")
