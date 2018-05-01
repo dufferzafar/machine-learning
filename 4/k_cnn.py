@@ -1,5 +1,7 @@
 import numpy as np
 
+import cv2
+
 from sklearn.model_selection import train_test_split
 
 from common import load_data, write_csv
@@ -16,8 +18,10 @@ def keras_load_data_split(trX, trYi, tsX, clean=True):
     # Image Cleaning via Erosion
     if clean:
         kernel = np.ones((2, 1))
-        trX = np.array([cv2.erode(img, kernel) for img in trX]).reshape(trX.shape)
-        tsX = np.array([cv2.erode(img, kernel) for img in tsX]).reshape(tsX.shape)
+        trX = np.array([cv2.erode(img, kernel)
+                        for img in trX]).reshape(trX.shape)
+        tsX = np.array([cv2.erode(img, kernel)
+                        for img in tsX]).reshape(tsX.shape)
 
     # zero mean, unit variance
     trX = normalize(trX)
@@ -53,8 +57,10 @@ def keras_load_data(trX, trYi, tsX, clean=True):
     # Image Cleaning via Erosion
     if clean:
         kernel = np.ones((2, 1))
-        trX = np.array([cv2.erode(img, kernel) for img in trX]).reshape(trX.shape)
-        tsX = np.array([cv2.erode(img, kernel) for img in tsX]).reshape(tsX.shape)
+        trX = np.array([cv2.erode(img, kernel)
+                        for img in trX]).reshape(trX.shape)
+        tsX = np.array([cv2.erode(img, kernel)
+                        for img in tsX]).reshape(tsX.shape)
 
     # zero mean, unit variance
     trX = normalize(trX)
@@ -114,8 +120,10 @@ def train_keras_cnn(arch=keras_vgg_13):
 def load_model(model_file):
     pass
 
+
 def save_model(net):
     pass
+
 
 if __name__ == '__main__':
     train_keras_model()
