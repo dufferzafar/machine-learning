@@ -12,11 +12,15 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from torch.autograd import Variable
 
-from common import load_data, write_csv
+from common import load_data, write_csv, normalize
 
 
 trX, trY, tsX = load_data()
 classes, trYi = np.unique(trY, return_inverse=True)
+
+# zero mean, unit variance
+trX = normalize(trX)
+tsX = normalize(tsX)
 
 
 class Sketches(Dataset):
@@ -29,7 +33,7 @@ class Sketches(Dataset):
         return len(self.X)
 
     def __getitem__(self, idx):
-        x = self.X[idx] / 255
+        x = self.X[idx]
         y = -1
 
         if self.Y is not None:
