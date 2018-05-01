@@ -12,11 +12,15 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from torch.autograd import Variable
 
-from common import load_data, write_csv
+from common import load_data, write_csv, normalize
 
 
 trX, trY, tsX = load_data()
 classes, trYi = np.unique(trY, return_inverse=True)
+
+# zero mean, unit variance
+trX = normalize(trX)
+tsX = normalize(tsX)
 
 
 class Sketches(Dataset):
@@ -29,7 +33,7 @@ class Sketches(Dataset):
         return len(self.X)
 
     def __getitem__(self, idx):
-        x = self.X[idx] / 255
+        x = self.X[idx]
         y = -1
 
         if self.Y is not None:
@@ -40,33 +44,39 @@ class Sketches(Dataset):
 
 class ConvNet(nn.Module):
 
-    def __init__(self, channels=32):
+    def __init__(self, channels=32, kernel_size=5, hidden_size=512):
         super(ConvNet, self).__init__()
 
-        self.conv = nn.Conv2d(1, channels, kernel_size=5)
+        self.conv = nn.Conv2d(1, channels, kernel_size=kernel_size)
+        self.mp = nn.MaxPool2d(kernel_size=2)
 
-        # TODO: MaxPool Kernel 2x2 ?
-        # self.mp = nn.MaxPool2d(kernel_size=2)
+        # Reduce image size by 1/4th
+        img_width = (28 + 1 - kernel_size) // 2
+        num_inputs = channels * (img_width ** 2)
 
-        # Reduce image size by 1/4th ?
-        self.mp = nn.MaxPool2d(kernel_size=4)
-
-        img_size = (28 + 1 - self.conv.kernel_size[0]) // 4
-        self.fc = nn.Linear(channels * (img_size ** 2), 20)
+        # A hidden layer in between
+        self.fc1 = nn.Linear(num_inputs, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, 20)
 
     def forward(self, x):
         in_size = x.size(0)
-        # print(x.size())
+
+        # Convolution & Maxpool
         x = self.conv(x)
-        # print(x.size())
         x = self.mp(x)
-        # print(x.size())
         x = F.relu(x)
+
+        # Flatten the input now
         x = x.view(in_size, -1)
-        # print(x.size())
-        x = self.fc(x)
-        # print(x.size())
-        # exit()
+
+        # Fully Connected Hidden Layer
+        x = self.fc1(x)
+        x = F.relu(x)
+
+        # Output Layer
+        x = self.fc2(x)
+        x = F.log_softmax(x, dim=0)
+
         return x
 
 
@@ -74,8 +84,11 @@ def train(net, train_data, dev_data=None,
           max_epochs=100, learning_rate=0.001, quiet=False):
 
     # Loss and Optimizer
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.NLLLoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
+
+    # criterion = nn.CrossEntropyLoss()
+    # optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
 
     for epoch in range(max_epochs):
         for i, (images, labels) in enumerate(train_data):
@@ -146,12 +159,15 @@ def predict(net, data, return_acc=False):
 
 def simple_run(split=True):
 
-    # Hyper Parameters'
-    channels = 20
-    max_epochs = 100
-    learning_rate = 0.001
+    # Network parameters
+    channels = 64
+    kernel_size = 5
+    hidden_size = 512
 
-    batch_size = 256
+    # Training parameters
+    max_epochs = 50
+    batch_size = 512
+    learning_rate = 0.001
 
     # Data
     if split:
@@ -163,7 +179,7 @@ def simple_run(split=True):
         tvD = None
 
     # Build the network
-    net = ConvNet(channels)
+    net = ConvNet(channels, kernel_size, hidden_size)
 
     print(
         "\n",
@@ -197,11 +213,12 @@ def grid_search():
     tvD = DataLoader(Sketches(tvX_, tvY_),
                      batch_size, shuffle=False)
 
-    # TODO: Grid search over conv layer kernel size?
     parameters = {
-        'channels': [10, 20, 25, 35, 40],
-        'max_epochs': [75],
+        'channels': [10, 20, 32, 48, 64],
+        'kernel_size': [4, 5, 6, 7, 8],
+        'hidden_size': [256, 512, 1024],
         'learning_rate': [0.005, 0.001],
+        'max_epochs': [75],
     }
 
     results = {}
@@ -210,7 +227,11 @@ def grid_search():
         print("Training net", params)
 
         # Build the network
-        net = ConvNet(params.pop("channels"))
+        net = ConvNet(
+            params.pop("channels"),
+            params.pop("kernel_size"),
+            params.pop("hidden_size"),
+        )
 
         print(net)
 
@@ -224,8 +245,8 @@ def grid_search():
 
 if __name__ == '__main__':
 
-    # simple_run(split=True)
+    simple_run(split=True)
 
     # simple_run(split=False)
 
-    grid_search()
+    # grid_search()
