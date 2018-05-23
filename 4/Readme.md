@@ -3,12 +3,17 @@
 
 ## Part 1
 
-A. K-Means: i, ii, iii
-B. PCA + SVM
-C. Neural Net (PyTorch)
-D. Convolutional Neural Network (PyTorch)
-E. Overall Comparison
+a. K-Means: i, ii, iii
+
+b. PCA + SVM
+
+c. Neural Net (PyTorch)
+
+d. Convolutional Neural Network (PyTorch)
+
+e. Overall Comparison
+
 
 ## Part 2
 
-Kaggle War.
+[Kaggle War.](https://www.kaggle.com/c/col-774-spring-2018)
