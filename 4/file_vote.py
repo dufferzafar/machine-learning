@@ -11,6 +11,7 @@ files = {
     "keras_vgg_19_small_912.csv": 0.91242,
     "keras_alexnet.csv": 0.90270,  # deeper_cnn
     "keras_vgg_13_909.csv": 0.909,
+    # "majority_keras_mnist_deeper_cnn_svm.csv": 0.9034,
     # "keras_vgg_13_899.csv": 0.899,
     # "keras_mnist_cnn.csv": 0.87797,
     # "conv_net_854.csv": 0.85422,

@@ -1,0 +1,58 @@
+
+Pipeline(memory=None,
+     steps=[('scaler', StandardScaler(copy=True, with_mean=True, with_std=True)), ('pca', PCA(copy=True, iterated_power='auto', n_components=50, random_state=None,
+  svd_solver='auto', tol=0.0, whiten=False)), ('clf', SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,
+  decision_function_shape='ovo', degree=3, gamma='auto', kernel='linear',
+  max_iter=-1, probability=False, random_state=None, shrinking=True,
+  tol=0.001, verbose=False))])
+
+Fitting PCA (50) + SVM (Linear)
+Training Accuracy:  0.69912
+Writing labels to: pca_50_svm_linear.csv
+
+Pipeline(memory=None,
+     steps=[('pca', PCA(copy=True, iterated_power='auto', n_components=50, random_state=None,
+  svd_solver='auto', tol=0.0, whiten=False)), ('clf', SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,
+  decision_function_shape='ovo', degree=3, gamma='auto', kernel='linear',
+  max_iter=-1, probability=False, random_state=None, shrinking=True,
+  tol=0.001, verbose=False))])
+
+Fitting PCA (50) + SVM (Linear)
+Training Accuracy:  0.65662
+Writing labels to: pca_50_svm_linear.csv
+
+
+---
+
+VGG 13 CNN; 2048; Dropouts 0.3;
+
+eroded images; scaling axis 1 (sample wise?);
+
+batch_size = 64
+epochs = 10
+SGD; LR=0.01
+
+Train on 75000 samples, validate on 25000 samples
+Epoch 1/10
+ - 116s - loss: 0.7088 - acc: 0.7923 - val_loss: 0.5922 - val_acc: 0.8257
+Epoch 2/10
+ - 112s - loss: 0.4250 - acc: 0.8765 - val_loss: 0.4916 - val_acc: 0.8578
+Epoch 3/10
+ - 112s - loss: 0.3386 - acc: 0.9004 - val_loss: 0.6133 - val_acc: 0.8273
+Epoch 4/10
+ - 112s - loss: 0.2839 - acc: 0.9156 - val_loss: 0.4203 - val_acc: 0.8815
+Epoch 5/10
+ - 112s - loss: 0.2371 - acc: 0.9281 - val_loss: 0.4510 - val_acc: 0.8724
+Epoch 6/10
+ - 113s - loss: 0.2052 - acc: 0.9379 - val_loss: 0.5962 - val_acc: 0.8386
+Epoch 7/10
+ - 113s - loss: 0.1731 - acc: 0.9472 - val_loss: 0.4397 - val_acc: 0.8882
+Epoch 8/10
+ - 113s - loss: 0.1507 - acc: 0.9530 - val_loss: 0.4570 - val_acc: 0.8837
+Epoch 9/10
+ - 112s - loss: 0.1290 - acc: 0.9597 - val_loss: 0.4380 - val_acc: 0.8914
+Epoch 10/10
+ - 112s - loss: 0.1091 - acc: 0.9658 - val_loss: 0.7386 - val_acc: 0.8360
+
+---
+

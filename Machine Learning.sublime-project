@@ -14,7 +14,8 @@
 			"file_exclude_patterns":
 			[
 				"*.po",
-				"*.pot"
+				"*.pot",
+				"*.csv"
 			],
 			"folder_exclude_patterns":
 			[
